@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>云蜂车共享</title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport"/>
+    <link rel="stylesheet" href="dist/vendor.css">
+    <link rel="stylesheet" href="dist/build.css">
+    <script src="http://api.map.baidu.com/getscript?v=2.0&ak=0749cba04b7af237211ec92a9e58cdc6&services=&t=20160804144823"></script>
+    <script src="http://api.map.baidu.com/library/LuShu/1.2/src/LuShu_min.js"></script>
+</head>
+
+<body id="app" class="hold-transition skin-blue sidebar-mini">
+    <div class="wrapper">
+        <my-header :username="nickName"></my-header>
+        <component :is="currentSidebar" v-if="$route.path !== '/login' &amp;&amp; $route.path !== '/register'"></component>
+        <div class="content-wrapper" :class="{'no-margin': ($route.path == '/login') || ($route.path == '/register')}">        
+            <router-view></router-view>
+        </div>
+        <my-footer></my-footer>
+    </div>
+    <script src="dist/vendor.js"></script>
+    <script src="dist/build.js"></script>
+</body>
+
+</html>

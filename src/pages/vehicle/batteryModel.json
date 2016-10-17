@@ -1,0 +1,20 @@
+{
+    "data": {
+        "batteryModelList": [{
+            "value": "省电/环保",
+            "name": "省电/环保"
+        }, {
+            "value": "2",
+            "name": "MXT-002"
+        }, {
+            "value": "3",
+            "name": "MXT-003"
+        }, {
+            "value": "4",
+            "name": "MXT-004"
+        }, {
+            "value": "5",
+            "name": "MXT-005"
+        }]
+    }
+}

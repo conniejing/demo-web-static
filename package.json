@@ -1,0 +1,50 @@
+{
+  "name": "webpack-simple-1.0",
+  "description": "A Vue.js project",
+  "author": "zhoujing <jing.zhou@beecloud.com>",
+  "private": true,
+  "scripts": {
+    "dev": "webpack-dev-server --inline --hot",
+    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules",
+    "start": "webpack-dev-server -d --progress --colors",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "babel-runtime": "^6.0.0",
+    "vue": "^1.0.0",
+    "vue-router": "^0.7.13",
+    "vue-validator": "^2.1.7"
+  },
+  "devDependencies": {
+    "babel-core": "^6.0.0",
+    "babel-eslint": "^7.0.0",
+    "babel-loader": "^6.0.0",
+    "babel-plugin-transform-runtime": "^6.0.0",
+    "babel-preset-es2015": "^6.0.0",
+    "babel-preset-stage-2": "^6.0.0",
+    "bootstrap": "^3.3.7",
+    "cross-env": "^1.0.6",
+    "css-loader": "^0.25.0",
+    "eslint": "^3.7.1",
+    "eslint-config-vue": "^1.1.0",
+    "eslint-loader": "^1.5.0",
+    "eslint-plugin-html": "^1.5.3",
+    "eslint-plugin-promise": "^3.0.0",
+    "eslint-plugin-standard": "^2.0.1",
+    "expose-loader": "^0.7.1",
+    "extract-text-webpack-plugin": "^1.0.1",
+    "file-loader": "^0.8.4",
+    "html-webpack-plugin": "^2.22.0",
+    "jquery": "2.1.4",
+    "json-loader": "^0.5.4",
+    "style-loader": "^0.13.1",
+    "url-loader": "^0.5.7",
+    "vue-hot-reload-api": "^1.2.0",
+    "vue-html-loader": "^1.0.0",
+    "vue-loader": "^8.2.1",
+    "vue-router": "^0.7.13",
+    "vue-style-loader": "^1.0.0",
+    "webpack": "^1.12.2",
+    "webpack-dev-server": "^1.12.0"
+  }
+}
