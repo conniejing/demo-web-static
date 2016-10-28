@@ -11,14 +11,15 @@ import VueValidator from 'vue-validator';
 Vue.use(VueRouter);
 Vue.use(VueValidator);
 
-//公用组件
+// 公用组件
 import MyHeader from './components/Header.vue';
 import MyFooter from './components/Footer.vue';
 import MySidebar from './components/Sidebar.vue';
 import MySidebarAdmin from './components/SidebarAdmin.vue';
+import Loading from './components/Loading.vue';
 
 var nickName = common.getUserName();
-var currentSidebar = sessionStorage.getItem('userRole') === "admin" ? "MySidebarAdmin" : "MySidebar";
+var currentSidebar = sessionStorage.getItem('userRole') === 'admin' ? 'MySidebarAdmin' : 'MySidebar';
 
 // 路由器需要一个根组件。
 var App = Vue.extend({
@@ -26,23 +27,24 @@ var App = Vue.extend({
         return {
             nickName: nickName,
             currentSidebar: currentSidebar
-        }
+        };
     },
     components: {
         MyHeader,
         MyFooter,
         MySidebar,
-        MySidebarAdmin
+        MySidebarAdmin,
+        Loading
     },
     events: {
         setNickName: function(name) {
             this.nickName = name;
         },
         setSidebar: function(role) {
-            if (role === "admin") {
-                this.currentSidebar = "MySidebarAdmin";
+            if (role === 'admin') {
+                this.currentSidebar = 'MySidebarAdmin';
             } else {
-                this.currentSidebar = "MySidebar";
+                this.currentSidebar = 'MySidebar';
             }
         }
     }
@@ -62,7 +64,7 @@ router.map({
     '/index': {
         name: 'index',
         component: {
-            template: "<section class='content-header'><h1>首页</h1></section>"
+            template: '<section class=\'content-header\'><h1>首页</h1></section>'
         }
     },
     '/login': {
@@ -70,7 +72,7 @@ router.map({
             require(['./pages/auth/login.vue'], resolve);
         }
     },
-    //车辆管理 - 我的车
+    // 车辆管理 - 我的车
     '/vehicle': {
         name: 'vehicle',
         component: function(resolve) {
@@ -80,16 +82,16 @@ router.map({
             }, 'vehicle-chunk');
         },
         subRoutes: {
-            //车辆列表
+            // 车辆列表
             '/list': {
                 name: 'vehicleList',
                 component: function(resolve) {
                     require.ensure([], function() {
-                        resolve(require('./pages/vehicle/vehicleList.vue'));
+                        resolve(require('./pages/vehicle/vehicleList-comp.vue'));
                     }, 'vehicle-chunk');
                 }
             },
-            //车辆详情
+            // 车辆详情
             '/info/:id': {
                 name: 'vehicleInfo',
                 component: function(resolve) {
@@ -98,7 +100,7 @@ router.map({
                     }, 'vehicle-chunk');
                 }
             },
-            //发布车辆
+            // 发布车辆
             '/add': {
                 component: function(resolve) {
                     require.ensure([], function() {
@@ -106,7 +108,7 @@ router.map({
                     }, 'vehicle-chunk');
                 }
             },
-            //修改车辆
+            // 修改车辆
             '/edit/:id': {
                 component: function(resolve) {
                     require.ensure([], function() {
@@ -130,7 +132,7 @@ router.map({
                     }
                 }
             },
-            //车辆事件列表
+            // 车辆事件列表
             '/event': {
                 name: 'vehicleEvent',
                 component: function(resolve) {
@@ -139,7 +141,7 @@ router.map({
                     }, 'vehicle-chunk');
                 }
             },
-            //车辆事件详情
+            // 车辆事件详情
             '/event/:id': {
                 name: 'eventInfo',
                 component: function(resolve) {
@@ -150,16 +152,16 @@ router.map({
             }
         }
     },
-    //车辆管理 - 我租的车
+    // 车辆管理 - 我租的车
     '/rentedVehicle': {
         component: function(resolve) {
             require.ensure([], function() {
                 resolve(require('./pages/rentedVehicle/rentedVehicle.vue'));
             }, 'rentedVehicle-chunk');
         },
-        //子路由，会在父路由的<router-view>节点进行渲染
+        // 子路由，会在父路由的<router-view>节点进行渲染
         subRoutes: {
-            //车辆列表
+            // 车辆列表
             '/list': {
                 component: function(resolve) {
                     require.ensure([], function() {
@@ -167,7 +169,7 @@ router.map({
                     }, 'rentedVehicle-chunk');
                 }
             },
-            //车辆详情
+            // 车辆详情
             '/info/:id': {
                 component: function(resolve) {
                     require.ensure([], function() {
@@ -175,7 +177,7 @@ router.map({
                     }, 'rentedVehicle-chunk');
                 }
             },
-            //车辆定位
+            // 车辆定位
             '/monitor': {
                 component: function(resolve) {
                     require.ensure([], function() {
@@ -185,7 +187,7 @@ router.map({
             }
         }
     },
-    // //订单中心 - 租入车单
+    // 订单中心 - 租入车单
     '/rentOrder': {
         name: 'rentOrder',
         component: function(resolve) {
@@ -194,7 +196,7 @@ router.map({
             }, 'rentOrder-chunk');
         },
         subRoutes: {
-            //车单列表
+            // 车单列表
             '/list': {
                 component: function(resolve) {
                     require.ensure([], function() {
@@ -202,7 +204,7 @@ router.map({
                     }, 'rentOrder-chunk');
                 }
             },
-            //车单处理
+            // 车单处理
             '/edit/:id': {
                 component: function(resolve) {
                     require.ensure([], function() {
@@ -210,7 +212,7 @@ router.map({
                     }, 'rentOrder-chunk');
                 }
             },
-            //车单详情
+            // 车单详情
             '/info/:id': {
                 component: function(resolve) {
                     require.ensure([], function() {
@@ -218,7 +220,7 @@ router.map({
                     }, 'rentOrder-chunk');
                 }
             },
-            //查询统计
+            // 查询统计
             '/statistics': {
                 component: function(resolve) {
                     require.ensure([], function() {
@@ -228,7 +230,7 @@ router.map({
             }
         }
     },
-    //订单中心 - 租车车单
+    // 订单中心 - 租车车单
     '/leaseOrder': {
         name: 'leaseOrder',
         component: function(resolve) {
@@ -237,7 +239,7 @@ router.map({
             }, 'leaseOrder-chunk');
         },
         subRoutes: {
-            //车单列表
+            // 车单列表
             '/list': {
                 component: function(resolve) {
                     require.ensure([], function() {
@@ -245,7 +247,7 @@ router.map({
                     }, 'leaseOrder-chunk');
                 }
             },
-            //车单处理
+            // 车单处理
             '/edit/:id': {
                 component: function(resolve) {
                     require.ensure([], function() {
@@ -253,7 +255,7 @@ router.map({
                     }, 'leaseOrder-chunk');
                 }
             },
-            //车单详情
+            // 车单详情
             '/info/:id': {
                 component: function(resolve) {
                     require.ensure([], function() {
@@ -261,7 +263,7 @@ router.map({
                     }, 'leaseOrder-chunk');
                 }
             },
-            //查询统计
+            // 查询统计
             '/statistics': {
                 component: function(resolve) {
                     require.ensure([], function() {
@@ -271,7 +273,7 @@ router.map({
             }
         }
     },
-    //订单中心 - 我要租车
+    // 订单中心 - 我要租车
     '/rentCar': {
         name: 'rentCar',
         component: function(resolve) {
@@ -280,7 +282,7 @@ router.map({
             }, 'rentCar-chunk');
         },
         subRoutes: {
-            //车单列表
+            // 车单列表
             '/list': {
                 component: function(resolve) {
                     require.ensure([], function() {
@@ -295,7 +297,7 @@ router.map({
                     }, 'rentCar-chunk');
                 }
             },
-            //车辆定位
+            // 车辆定位
             '/monitor/:id': {
                 component: function(resolve) {
                     require(['./pages/vehicle/monitor.vue'], resolve);
@@ -303,7 +305,7 @@ router.map({
             }
         }
     },
-    //个人中心
+    // 个人中心
     '/auth': {
         name: 'auth',
         component: function(resolve) {
@@ -312,7 +314,7 @@ router.map({
             }, 'auth-chunk');
         },
         subRoutes: {
-            //我的信息
+            // 我的信息
             '/myInfo': {
                 component: function(resolve) {
                     require.ensure([], function() {
@@ -320,7 +322,7 @@ router.map({
                     }, 'auth-chunk');
                 }
             },
-            //修改密码
+            // 修改密码
             '/password': {
                 component: function(resolve) {
                     require.ensure([], function() {
@@ -338,7 +340,7 @@ router.map({
             }
         }
     },
-    //demo的路由地址
+    // demo的路由地址
     '/demo': {
         component: function(resolve) {
             require.ensure([], function() {

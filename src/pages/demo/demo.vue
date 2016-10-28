@@ -19,13 +19,13 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>开始时间</label>
-                                    <input id="startTime" type="text" class="form-control" v-model="params.startTime"/>
+                                    <input id="startTime" type="text" class="form-control" v-model="params.startTime" />
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>结束时间</label>
-                                    <input id="endTime" type="text" class="form-control" v-model="params.endTime"/>
+                                    <input id="endTime" type="text" class="form-control" v-model="params.endTime" />
                                 </div>
                             </div>
                         </div>
@@ -56,13 +56,15 @@
                         <div class="row everydemo">
                             <h2 class="col-md-12">IOS开关</h2>
                             <div class="col-md-1">
-                                <label class="iosCheck"><input type="checkbox" v-model="theFirstChecked"><i></i></label>
+                                <label class="iosCheck">
+                                    <input type="checkbox" v-model="theFirstChecked"><i></i></label>
                             </div>
                             <div class="col-md-5">
                                 {{ theFirstChecked || false }}
                             </div>
                             <div class="col-md-1">
-                                <label class="iosCheck"><input type="checkbox" checked="checked" v-model="theLastChecked"><i></i></label>
+                                <label class="iosCheck">
+                                    <input type="checkbox" checked="checked" v-model="theLastChecked"><i></i></label>
                             </div>
                             <div class="col-md-5">
                                 {{ theLastChecked }}
@@ -151,8 +153,11 @@
                         </div>
                         <div class="row everydemo">
                             <h2 class="col-md-12" style="margin-bottom: 50px">图表chart</h2>
-                            <div class="col-md-3">
-                                <canvas id="myChart" width="400" height="400"></canvas>
+                            <div class="col-md-6">
+                                <canvas id="myChart1" width="400" height="400"></canvas>
+                            </div>
+                            <div class="col-md-6">
+                                <canvas id="myChart2" width="400" height="400"></canvas>
                             </div>
                         </div>
                         <div class="row everydemo">
@@ -163,18 +168,22 @@
                         </div>
                         <div class="row everydemo">
                             <h2 class="col-md-12" style="margin-bottom: 30px">联动城市选择</h2>
-                            <div class="col-md-12 info">
-                                <div class="form-group col-md-4">
-                                    <select id="s_province" name="s_province" class="form-control"></select>
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <select id="s_city" name="s_city" class="form-control" ></select>
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <select id="s_county" name="s_county" class="form-control"></select>
-                                </div>
-                                <div id="show"></div>
+                            <div class="col-md-12 docs-methods">
+                                <form class="form-inline">
+                                    <div id="distpicker">
+                                        <div class="form-group">
+                                            <div style="position: relative;">
+                                                <input id="city-picker3" class="form-control" readonly type="text" value="江苏省/常州市/溧阳市" data-toggle="city-picker">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <button class="btn btn-warning" id="reset" type="button">重置</button>
+                                            <button class="btn btn-danger" id="destroy" type="button">确定</button>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
+
                         </div>
                         <div class="row everydemo">
                             <h2 class="col-md-12">上传组件</h2>
@@ -209,231 +218,289 @@
 </template>
 
 <script>
-    import common from '../../components/common';
-    import commonAjax from '../../components/commonAjax';
-    import callout from '../../components/Callout.vue';
-    import api from '../../components/apiConfig';
-
-    export default{
-        data: function(){
-            return {
-                pagination: {
-                    pageSize: '',   //本页多少条
-                    totalSize: '',  //一共多少条
-                    page: ''        //当前页数
-                },
-                vehicleList: [],
-                params:{
-                    carPlate: '',
-                    // vehicleModel: '',
-                    auditStatus: ''
-                },
-                //顶部消息提示数据
-                callout: {
-                    failed: '',
-                    info: '',
-                    warning: '',
-                    success: '',
-                    autoclose: true
-                },
-                //autocomplete获取的数据
-                autodata:[]
+import common from '../../components/common';
+import callout from '../../components/Callout.vue';
+import '../../vendors/plugins/special/lightbox-2.6.min';
+import '../../vendors/plugins/special/zyupload';
+import '../../vendors/plugins/special/jquery.webui-popover';
+import '../../vendors/plugins/special/sweetalert';
+// import ChineseDistricts from '../../vendors/plugins/special/citydata';
+import '../../vendors/plugins/special/city';
+import Chart from 'chart.js';
+export default {
+    data: function() {
+        return {
+            pagination: {
+                pageSize: '',
+                totalSize: '',
+                page: ''
+            },
+            vehicleList: [],
+            params: {
+                carPlate: '',
+                // vehicleModel: '',
+                auditStatus: ''
+            },
+            // 顶部消息提示数据
+            callout: {
+                failed: '',
+                info: '',
+                warning: '',
+                success: '',
+                autoclose: true
+            },
+            // autocomplete获取的数据
+            autodata: []
+        };
+    },
+    components: {
+        callout
+    },
+    route: {
+        data: function(transition) {
+            if (common.noLoginRedirect()) {
+                transition.next();
             }
-        },
-        components: {
-            callout
-        },
-        route: {
-            data: function(transition){
-                if(common.noLoginRedirect()){
-                    transition.next(total);
-                }
-            }
-        },
-        methods: {
-            loading: function() {
-                common.UI.setload();
-                setTimeout(function () {
-                    common.UI.removeload();
-                },2000)
-            },
-            corloading: function () {
-                common.UI.setcornerload();
-                setTimeout(function () {
-                    common.UI.removecornerload();
-                },2000)
-            },
-            sweetSuccess: function () {
-                swal({title: "成功了哦",text: "分分钟就成功了呀...",type: "success",timer: 800});
-            },
-            sweetError: function () {
-                swal("出问题了", "这个问题前所未见，我正在修复中...", "error");
-            },
-            sweetWarning: function () {
-                swal("注意：", "这是一个警告框，我实在是编不出内容了...", "warning");
-            },
-            sweetAjax: function () {
-                swal({
-                    title: "一个请求框!",
-                    text: "在这里输入信息并请求到后台...",
-                    type: "input",
-                    showCancelButton: true,
-                    closeOnConfirm: false,
-                    animation: "slide-from-top",
-                    inputPlaceholder: "Write something",
-                    showLoaderOnConfirm: true
-                }, function(inputValue) {
-
-                    if (inputValue === false) return false;
-                    if (inputValue === "") {
-                        swal.showInputError("您什么都没有写呀......");
-                        return false;
-                    }else if (inputValue.length > 8) {
-                        swal.showInputError("内容太多啦，不超过8个字哦!");
-                        return false;
-                    }else {
-                        //在这里发送Ajax请求，请求的回调函数再关闭这个框框
-                        setTimeout(function () {
-                            swal({title: "成功了哦",text: "分分钟就成功了呀...",type: "success",timer: 800});
-                        },2000);
-                    }
-                });
-            },
-            autocomplete: function () {
-                //假数据
-                var datajson = [
-                    {id:"101",text:"搜索到的信息1"},
-                    {id:"102",text:"搜索到的信息2"},
-                    {id:"103",text:"搜索到的信息3"},
-                    {id:"104",text:"搜索到的信息4"},
-                    {id:"105",text:"搜索到的信息5"}
-                ];
-                if(this.autoValue.length < 3 && this.autoValue.length > 0){
-                    this.autodata = datajson;
-                }else{
-                    this.autodata = [];
-                }
-
-            },
-            completetext: function (event) {
-                this.autoValue = event.target.innerHTML;
-
-                //不操作DOM完全不知道怎么做呀
-                event.target.parentNode.style.display = "none";
-            }
-        },
-        events: {
-            //
-        },
-        ready: function () {
-            //初始化时间控件
-            $("#startTime").datetimepicker({format: 'yyyy-mm-dd hh:ii:ss',autoclose: true,minuteStep: 1});
-            $("#endTime").datetimepicker({format: 'yyyy-mm-dd hh:ii:ss',autoclose: true,minuteStep: 1});
-            //结束时间需大于开始时间
-            $(document).on('change', '#startTime', function() {
-                var TimeValue = $(this).val();
-                if(TimeValue != ""){
-                    $("#endTime").datetimepicker('setStartDate', TimeValue);
-                }
-            });
-            $(document).on('change','#endTime',function(){
-                var TimeValue = $(this).val();
-                if(TimeValue != "") {
-                    $("#startTime").datetimepicker('setEndDate', TimeValue);
-                }
-            });
-
-
-            //初始化图表chart
-            //http://www.bootcss.com/p/chart.js/docs/
-            var data = [
-                {
-                    value: 30,
-                    color:"#F38630"
-                },
-                {
-                    value : 50,
-                    color : "#E0E4CC"
-                },
-                {
-                    value : 100,
-                    color : "#69D2E7"
-                }
-            ];
-            var defaults = {
-                //Boolean - Whether we should show a stroke on each segment
-                segmentShowStroke : true,
-
-                //String - The colour of each segment stroke
-                segmentStrokeColor : "#fff",
-
-                //Number - The width of each segment stroke
-                segmentStrokeWidth : 2,
-
-                //Boolean - Whether we should animate the chart
-                animation : true,
-
-                //Number - Amount of animation steps
-                animationSteps : 100,
-
-                //String - Animation easing effect
-                animationEasing : "easeOutBounce",
-
-                //Boolean - Whether we animate the rotation of the Pie
-                animateRotate : true,
-
-                //Boolean - Whether we animate scaling the Pie from the centre
-                animateScale : false,
-
-                //Function - Will fire on animation completion.
-                onAnimationComplete : null
-            }
-            var ctx = document.getElementById("myChart").getContext("2d");
-            var myNewChart = new Chart(ctx).Pie(data,defaults);
-
-
-            //初始化上传组件
-            $("#demoUpload").zyUpload({
-                width:"100%",// 宽度
-                height:"auto",// 宽度
-                itemWidth:"120px",// 文件项的宽度
-                itemHeight :"100px",// 文件项的高度
-                url:"",
-                multiple:true,// 是否可以多个文件上传
-                dragDrop:false,// 是否可以拖动上传文件
-                del:true,// 是否可以删除文件
-                finishDel:false, // 是否在上传文件完成后删除预览
-            });
-
-
-
-            //Tooltips 提示框
-            //https://github.com/sandywalker/webui-popover
-            $('#showTooltips1').webuiPopover();
-            $('#showTooltips2').webuiPopover({animation:'pop'});
-
-
-
-            //三级联动，地区组件
-            _init_area();
-
-            var Gid  = document.getElementById ;
-            var showArea = function(){
-                Gid('show').innerHTML = "<h3>省" + Gid('s_province').value + " - 市" +
-                        Gid('s_city').value + " - 县/区" +
-                        Gid('s_county').value + "</h3>"
-            }
-            Gid('s_county').setAttribute('onchange','showArea()');
-
-
-
-            //自动补全
-            //
-
-            //这个位置有bug，先记着，这个位置的断点不会被执行
-            //debugger;
-
-
         }
+    },
+    methods: {
+        loading: function() {
+            common.UI.setload();
+            setTimeout(function() {
+                common.UI.removeload();
+            }, 2000);
+        },
+        corloading: function() {
+            common.UI.setcornerload();
+            setTimeout(function() {
+                common.UI.removecornerload();
+            }, 2000);
+        },
+        sweetSuccess: function() {
+            swal({
+                title: '成功了哦',
+                text: '分分钟就成功了呀...',
+                type: 'success',
+                timer: 800
+            });
+        },
+        sweetError: function() {
+            swal('出问题了', '这个问题前所未见，我正在修复中...', 'error');
+        },
+        sweetWarning: function() {
+            swal('注意：', '这是一个警告框，我实在是编不出内容了...', 'warning');
+        },
+        sweetAjax: function() {
+            swal({
+                title: '一个请求框!',
+                text: '在这里输入信息并请求到后台...',
+                type: 'input',
+                showCancelButton: true,
+                closeOnConfirm: false,
+                animation: 'slide-from-top',
+                inputPlaceholder: 'Write something',
+                showLoaderOnConfirm: true
+            }, function(inputValue) {
+                if (inputValue === false) return false;
+                if (inputValue === '') {
+                    swal.showInputError('您什么都没有写呀......');
+                    return false;
+                } else if (inputValue.length > 8) {
+                    swal.showInputError('内容太多啦，不超过8个字哦!');
+                    return false;
+                } else {
+                    // 在这里发送Ajax请求，请求的回调函数再关闭这个框框
+                    setTimeout(function() {
+                        swal({
+                            title: '成功了哦',
+                            text: '分分钟就成功了呀...',
+                            type: 'success',
+                            timer: 800
+                        });
+                    }, 2000);
+                }
+            });
+        },
+        autocomplete: function() {
+            // 假数据
+            var datajson = [{
+                id: '101',
+                text: '搜索到的信息1'
+            }, {
+                id: '102',
+                text: '搜索到的信息2'
+            }, {
+                id: '103',
+                text: '搜索到的信息3'
+            }, {
+                id: '104',
+                text: '搜索到的信息4'
+            }, {
+                id: '105',
+                text: '搜索到的信息5'
+            }];
+            if (this.autoValue.length < 3 && this.autoValue.length > 0) {
+                this.autodata = datajson;
+            } else {
+                this.autodata = [];
+            }
+        },
+        completetext: function(event) {
+            this.autoValue = event.target.innerHTML;
+            event.target.parentNode.style.display = 'none';
+        }
+    },
+    events: {
+        //
+    },
+    ready: function() {
+        // 初始化时间控件
+        $('#startTime').datetimepicker({
+            format: 'yyyy-mm-dd hh:ii:ss',
+            autoclose: true,
+            minuteStep: 1
+        });
+        $('#endTime').datetimepicker({
+            format: 'yyyy-mm-dd hh:ii:ss',
+            autoclose: true,
+            minuteStep: 1
+        });
+        // 结束时间需大于开始时间
+        $(document).on('change', '#startTime', function() {
+            var TimeValue = $(this).val();
+            if (TimeValue !== '') {
+                $('#endTime').datetimepicker('setStartDate', TimeValue);
+            }
+        });
+        $(document).on('change', '#endTime', function() {
+            var TimeValue = $(this).val();
+            if (TimeValue !== '') {
+                $('#startTime').datetimepicker('setEndDate', TimeValue);
+            }
+        });
+        // 初始化图表chart
+        // http://www.bootcss.com/p/chart.js/docs/
+        var ctx1 = document.getElementById("myChart1");
+        var myChart1 = new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+                datasets: [{
+                    label: '# of Votes',
+                    data: [12, 19, 3, 5, 2, 3],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255,99,132,1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero:true
+                        }
+                    }]
+                }
+            }
+        });
+        var ctx2 = document.getElementById("myChart2");
+        var myChart2 = new Chart(ctx2,{
+            type: 'pie',
+            data: {
+                labels: [
+                    "Red",
+                    "Blue",
+                    "Yellow"
+                ],
+                datasets: [
+                    {
+                        data: [300, 50, 100],
+                        backgroundColor: [
+                            "#FF6384",
+                            "#36A2EB",
+                            "#FFCE56"
+                        ],
+                        hoverBackgroundColor: [
+                            "#FF6384",
+                            "#36A2EB",
+                            "#FFCE56"
+                        ]
+                    }]
+            },
+            options: ''
+        });
+
+
+
+        // 初始化上传组件
+        $('#demoUpload').zyUpload({
+            width: '100%', // 宽度
+            height: 'auto', // 宽度
+            itemWidth: '120px', // 文件项的宽度
+            itemHeight: '100px', // 文件项的高度
+            url: '',
+            multiple: true, // 是否可以多个文件上传
+            dragDrop: false, // 是否可以拖动上传文件
+            del: true, // 是否可以删除文件
+            finishDel: false, // 是否在上传文件完成后删除预览
+        });
+
+        // Tooltips 提示框
+        // https://github.com/sandywalker/webui-popover
+        $('#showTooltips1').webuiPopover();
+        $('#showTooltips2').webuiPopover({
+            animation: 'pop'
+        });
+
+        // 三级联动，地区组件
+//        var $citypicker1 = $('#city-picker1');
+//
+//        $citypicker1.citypicker();
+//
+//        var $citypicker2 = $('#city-picker2');
+//
+//        $citypicker2.citypicker({
+//            province: '江苏省',
+//            city: '常州市',
+//            district: '溧阳市'
+//        });
+
+        var $citypicker3 = $('#city-picker3');
+
+        $('#reset').click(function () {
+            $citypicker3.citypicker('reset');
+        });
+
+        $('#destroy').click(function () {
+            $citypicker3.citypicker('destroy');
+        });
+
+        $('[data-toggle="city-picker"]').citypicker();
+
+
+
+
+
+
+        //Gid('s_county').setAttribute('onchange', 'showArea()');
+        // 自动补全
+        //
+        // 这个位置有bug，先记着，这个位置的断点不会被执行
+        // debugger;
     }
+};
 </script>

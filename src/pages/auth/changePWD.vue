@@ -50,61 +50,60 @@
 </template>
 
 <script>
-    import common from '../../components/common';
-    import commonAjax from '../../components/commonAjax';
-    import callout from '../../components/Callout.vue';
-    import api from '../../components/apiConfig';
-    import '../../components/commonValidator';
-
-    export default{
-        data: function(){
-            return {
-                //顶部消息提示数据
-                callout: {
-                    failed: '',
-                    info: '',
-                    warning: '',
-                    success: '',
-                    autoclose: true
-                },
-                user: {
-                    newPassword: '',
-                    confirmPassword: '',
-                    oldPassword: ''
-                }
+import common from '../../components/common';
+import commonAjax from '../../components/commonAjax';
+import callout from '../../components/Callout.vue';
+import api from '../../components/apiConfig';
+import '../../components/commonValidator';
+export default {
+    data: function() {
+        return {
+            // 顶部消息提示数据
+            callout: {
+                failed: '',
+                info: '',
+                warning: '',
+                success: '',
+                autoclose: true
+            },
+            user: {
+                newPassword: '',
+                confirmPassword: '',
+                oldPassword: ''
             }
-        },
-        components: {
-            callout
-        },
-        route: {
-            data: function(transition){
-                common.noLoginRedirect();
-                transition.next();
-            }
-        },
-        methods: {
-            onSubmit: function() {
-                var self = this;
-                if(common.noLoginRedirect()){
-                    this.$validate(true, function(e) {
-                        if (self.$validation.valid) {
-                            var params = {
-                                "newPassword": self.user.newPassword,
-                                "oldPassword": self.user.oldPassword
+        };
+    },
+    components: {
+        callout
+    },
+    route: {
+        data: function(transition) {
+            common.noLoginRedirect();
+            transition.next();
+        }
+    },
+    methods: {
+        onSubmit: function() {
+            var self = this;
+            if (common.noLoginRedirect()) {
+                this.$validate(true, function(e) {
+                    if (self.$validation.valid) {
+                        var params = {
+                            'newPassword': self.user.newPassword,
+                            'oldPassword': self.user.oldPassword
+                        };
+                        var obj = JSON.parse(sessionStorage.getItem('user'));
+                        var userId = obj.userId;
+                        var url = api.auth.updatePwd + userId;
+                        commonAjax.ajaxPostJson(url, params, function(result) {
+                            if (result) {
+                                vex.dialog.alert('修改成功');
                             }
-                            var obj = JSON.parse(sessionStorage.getItem('user'));
-                            var userId = obj.userId;
-                            var url = api.auth.updatePwd + userId;
-                            commonAjax.ajaxPostJson(url, params, function(result){
-                                if(result){
-                                    vex.dialog.alert('修改成功');
-                                }
-                            });
-                        }
-                    })
-                }
+                        });
+                    }
+                });
             }
         }
     }
+};
 </script>

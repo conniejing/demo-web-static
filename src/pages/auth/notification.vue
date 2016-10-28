@@ -46,56 +46,59 @@
 </template>
 
 <script>
-    import common from '../../components/common';
-    import commonAjax from '../../components/commonAjax';
-    import callout from '../../components/Callout.vue';
-    import api from '../../components/apiConfig';
-
-    export default{
-        data: function(){
-            return {
-                //顶部消息提示数据
-                callout: {
-                    failed: '',
-                    info: '',
-                    warning: '',
-                    success: '',
-                    autoclose: true
-                },
-                unreadNotifications: [],
-                unreadNotificationsTotalCount: 0,
-                untreatedOrders: [],
-                untreatedOrdersTotalCount: 0
-            }
-        },
-        components: {
-            callout
-        },
-        route: {
-            data: function(transition){
-                if(common.noLoginRedirect()){
-                    var userId = '301';
-                    var unreadNotificationUrl = common.replaceUrl(api.auth.unreadNotifications, [{"key":"userId","value":userId}]);
-                    var untreatedOrdersUrl = common.replaceUrl(api.auth.untreatedOrders, [{"key":"userId","value":userId}]);
-                    var result = {};
-
-                    commonAjax.ajaxGetJson(unreadNotificationUrl, null, function(data){
-                        result.unreadNotifications = data.notificationDTOs;
-                        result.unreadNotificationsTotalCount = data.totalCount;
-                    });
-                    commonAjax.ajaxGetJson(untreatedOrdersUrl, null, function(data){
-                        result.untreatedOrders = data.orders;
-                        result.untreatedOrdersTotalCount = data.totalCount;
-                    });
-
-                    transition.next(result);
-                }
-            }
-        },
-        methods: {
-            onSubmit: function() {
-                //
+import common from '../../components/common';
+import commonAjax from '../../components/commonAjax';
+import callout from '../../components/Callout.vue';
+import api from '../../components/apiConfig';
+export default {
+    data: function() {
+        return {
+            // 顶部消息提示数据
+            callout: {
+                failed: '',
+                info: '',
+                warning: '',
+                success: '',
+                autoclose: true
+            },
+            unreadNotifications: [],
+            unreadNotificationsTotalCount: 0,
+            untreatedOrders: [],
+            untreatedOrdersTotalCount: 0
+        };
+    },
+    components: {
+        callout
+    },
+    route: {
+        data: function(transition) {
+            if (common.noLoginRedirect()) {
+                var userId = '301';
+                var unreadNotificationUrl = common.replaceUrl(api.auth.unreadNotifications, [{
+                    'key': 'userId',
+                    'value': userId
+                }]);
+                var untreatedOrdersUrl = common.replaceUrl(api.auth.untreatedOrders, [{
+                    'key': 'userId',
+                    'value': userId
+                }]);
+                var result = {};
+                commonAjax.ajaxGetJson(unreadNotificationUrl, null, function(data) {
+                    result.unreadNotifications = data.notificationDTOs;
+                    result.unreadNotificationsTotalCount = data.totalCount;
+                });
+                commonAjax.ajaxGetJson(untreatedOrdersUrl, null, function(data) {
+                    result.untreatedOrders = data.orders;
+                    result.untreatedOrdersTotalCount = data.totalCount;
+                });
+                transition.next(result);
             }
         }
+    },
+    methods: {
+        onSubmit: function() {
+            //
+        }
     }
+};
 </script>

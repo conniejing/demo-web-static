@@ -41,10 +41,10 @@
                 </div>
                 <div class="box-footer">
                     <div class="col-md-12">
-                        <button v-if="leaseOrder.status==='NEW'" type="button" class="btn btn-primary"@click="allowed">通过用车申请</button>
-                        <button v-if="leaseOrder.status==='NEW'" type="button" class="btn btn-primary"@click="notAllowed">拒绝用车申请</button>
-                        <button v-if="leaseOrder.status==='ALLOWED'" type="button" class="btn btn-primary"@click="loanCar">车主交车</button>
-                        <button v-if="leaseOrder.status==='RETURNCAR'" type="button" class="btn btn-primary"@click="finish">车主确认收车</button>
+                        <button v-if="leaseOrder.status==='NEW'" type="button" class="btn btn-primary" @click="allowed">通过用车申请</button>
+                        <button v-if="leaseOrder.status==='NEW'" type="button" class="btn btn-primary" @click="notAllowed">拒绝用车申请</button>
+                        <button v-if="leaseOrder.status==='ALLOWED'" type="button" class="btn btn-primary" @click="loanCar">车主交车</button>
+                        <button v-if="leaseOrder.status==='RETURNCAR'" type="button" class="btn btn-primary" @click="finish">车主确认收车</button>
                         <!--
                             --NEW("用车人申请待审核"),显示通过或者拒绝用车申请
                             --ALLOWED("车主审核通过"),显示车主交车
@@ -68,137 +68,160 @@
 </template>
 
 <script>
-    import common from '../../components/common';
-    import commonAjax from '../../components/commonAjax';
-    import callout from '../../components/Callout.vue';
-    import api from '../../components/apiConfig';
-
-    //列表信息获取url
-    var url = null;
-
-    export default{
-        data: function(){
-            return {
-                //顶部消息提示数据
-                leaseOrder: {
-                    carId: '',
-                    orderId: '',
-                    renterName: '',
-                    leaseholder: ''
-                },
-                //顶部消息提示数据
-                callout: {
-                    failed: '',
-                    info: '',
-                    warning: '',
-                    success: '',
-                    autoclose: true
-                },
-                areaControl: {
-                    edit: false
-                }
+import common from '../../components/common';
+import commonAjax from '../../components/commonAjax';
+import callout from '../../components/Callout.vue';
+import api from '../../components/apiConfig';
+// 列表信息获取url
+var url = null;
+export default {
+    data: function() {
+        return {
+            leaseOrder: {
+                carId: '',
+                orderId: '',
+                renterName: '',
+                leaseholder: ''
+            },
+            // 顶部消息提示数据
+            callout: {
+                failed: '',
+                info: '',
+                warning: '',
+                success: '',
+                autoclose: true
+            },
+            areaControl: {
+                edit: false
             }
-        },
-        components: {
-            //
-        },
-        route: {
-            data: function(transition){
-                if(common.noLoginRedirect()){
-                    url = api.leaseOrder.info;
-
-                    var routePath = transition.to.path;
-                    var pathArray = routePath.split('/');
-                    var secPath = pathArray[2];
-                    if(secPath === "edit"){
-                        this.areaControl.edit = true;
-                    }else{
-                        this.areaControl.edit = false;
-                    }
-
-                    var orderId = transition.to.params.id;
-
-                    url = common.replaceUrl(url, [{"key": "orderId", "value": orderId}]);
-                    commonAjax.ajaxGetJson(url, null, function(data){
-
-                        //调用 transition.next(data) 会为组件的 data 相应属性赋值。
-                        //例如，使用 { a: 1, b: 2 } ，路由会调用
-                        //component.$set('a', 1) 以及 component.$set('b', 2) 。
-                        //在调用 transition.next() 组装好data
-                        var total = {
-                            "leaseOrder":data
-                        }
-                        transition.next(total);
+        };
+    },
+    components: {
+        callout
+    },
+    route: {
+        data: function(transition) {
+            if (common.noLoginRedirect()) {
+                url = api.leaseOrder.info;
+                var routePath = transition.to.path;
+                var pathArray = routePath.split('/');
+                var secPath = pathArray[2];
+                if (secPath === 'edit') {
+                    this.areaControl.edit = true;
+                } else {
+                    this.areaControl.edit = false;
+                }
+                var orderId = transition.to.params.id;
+                url = common.replaceUrl(url, [{
+                    'key': 'orderId',
+                    'value': orderId
+                }]);
+                commonAjax.ajaxGetJson(url, null, function(data) {
+                    // 调用 transition.next(data) 会为组件的 data 相应属性赋值。
+                    // 例如，使用 { a: 1, b: 2 } ，路由会调用
+                    // component.$set('a', 1) 以及 component.$set('b', 2) 。
+                    // 在调用 transition.next() 组装好data
+                    var total = {
+                        'leaseOrder': data
+                    };
+                    transition.next(total);
+                });
+            }
+        }
+    },
+    methods: {
+        allowed: function() {
+            var self = this;
+            var orderId = self.leaseOrder.orderId;
+//            var vehicleId = self.leaseOrder.carId;
+            var url = common.replaceUrl(api.order.handleNewOrder, [{
+                'key': 'orderId',
+                'value': orderId
+            }]);
+            commonAjax.ajaxPUTForm(url, {
+                'status': 'ALLOWED'
+            }, function success() {
+                self.callout.success = '处理成功';
+                if (common.noLoginRedirect()) {
+                    url = common.replaceUrl(api.leaseOrder.info, [{
+                        'key': 'orderId',
+                        'value': orderId
+                    }]);
+                    commonAjax.ajaxGetJson(url, null, function(data) {
+                        self.$set('leaseOrder', data);
                     });
                 }
-            }
+            }, null);
         },
-        methods: {
-            allowed: function(){
-                var self = this;
-                var orderId = self.leaseOrder.orderId;
-                var vehicleId = self.leaseOrder.carId;
-                var url = common.replaceUrl(api.order.handleNewOrder, [{'key':'orderId', 'value': orderId}]);
-                commonAjax.ajaxPUTForm(url, {"status":'ALLOWED'}, function success(){
-                    self.callout.success = "处理成功";
-                    if(common.noLoginRedirect()){
-                        url = common.replaceUrl(api.leaseOrder.info, [{"key": "orderId", "value": orderId}]);
-                        commonAjax.ajaxGetJson(url, null, function(data){
-                            self.$set('leaseOrder', data);
-                        });
-                    }
-
-                }, null);
-            },
-            notAllowed: function(){
-                var self = this;
-                var orderId = self.leaseOrder.orderId;
-                var vehicleId = self.leaseOrder.carId;
-                var url = common.replaceUrl(api.order.handleNewOrder, [{'key':'orderId', 'value': orderId}]);
-                commonAjax.ajaxPUTForm(url, {"status":'NOTALLOWED'}, function success(){
-                    self.callout.success = "处理成功";
-                    if(common.noLoginRedirect()){
-                        url = common.replaceUrl(api.leaseOrder.info, [{"key": "orderId", "value": orderId}]);
-                        commonAjax.ajaxGetJson(url, null, function(data){
-                            self.$set('leaseOrder', data);
-                        });
-                    }
-                }, null);
-            },
-            loanCar: function(){
-                var self = this;
-                var orderId = self.leaseOrder.orderId;
-                var vehicleId = self.leaseOrder.carId;
-                var url = common.replaceUrl(api.order.loanCar, [{'key':'orderId', 'value': orderId}]);
-                commonAjax.ajaxPUTForm(url, null, function success(){
-                    self.callout.success = "处理成功";
-                    if(common.noLoginRedirect()){
-                        url = common.replaceUrl(api.leaseOrder.info, [{"key": "orderId", "value": orderId}]);
-                        commonAjax.ajaxGetJson(url, null, function(data){
-                            self.$set('leaseOrder', data);
-                        });
-                    }
-                }, null);
-            },
-            finish: function(){
-                var self = this;
-                var orderId = self.leaseOrder.orderId;
-                var vehicleId = self.leaseOrder.carId;
-                var url = common.replaceUrl(api.order.finish, [{'key':'orderId', 'value': orderId}]);
-                commonAjax.ajaxPUTForm(url, null, function success(){
-                    self.callout.success = "处理成功";
-                    if(common.noLoginRedirect()){
-                        url = common.replaceUrl(api.leaseOrder.info, [{"key": "orderId", "value": orderId}]);
-                        commonAjax.ajaxGetJson(url, null, function(data){
-                            self.$set('leaseOrder', data);
-                        });
-                    }
-                }, null);
-            }
+        notAllowed: function() {
+            var self = this;
+            var orderId = self.leaseOrder.orderId;
+//            var vehicleId = self.leaseOrder.carId;
+            var url = common.replaceUrl(api.order.handleNewOrder, [{
+                'key': 'orderId',
+                'value': orderId
+            }]);
+            commonAjax.ajaxPUTForm(url, {
+                'status': 'NOTALLOWED'
+            }, function success() {
+                self.callout.success = '处理成功';
+                if (common.noLoginRedirect()) {
+                    url = common.replaceUrl(api.leaseOrder.info, [{
+                        'key': 'orderId',
+                        'value': orderId
+                    }]);
+                    commonAjax.ajaxGetJson(url, null, function(data) {
+                        self.$set('leaseOrder', data);
+                    });
+                }
+            }, null);
         },
-        ready: function(){
-            this.map = $("#map").yfmap();
-            this.map.setLuShu('天府广场','三圣乡');
+        loanCar: function() {
+            var self = this;
+            var orderId = self.leaseOrder.orderId;
+            // var vehicleId = self.leaseOrder.carId;
+            var url = common.replaceUrl(api.order.loanCar, [{
+                'key': 'orderId',
+                'value': orderId
+            }]);
+            commonAjax.ajaxPUTForm(url, null, function success() {
+                self.callout.success = '处理成功';
+                if (common.noLoginRedirect()) {
+                    url = common.replaceUrl(api.leaseOrder.info, [{
+                        'key': 'orderId',
+                        'value': orderId
+                    }]);
+                    commonAjax.ajaxGetJson(url, null, function(data) {
+                        self.$set('leaseOrder', data);
+                    });
+                }
+            }, null);
+        },
+        finish: function() {
+            var self = this;
+            var orderId = self.leaseOrder.orderId;
+            // var vehicleId = self.leaseOrder.carId;
+            var url = common.replaceUrl(api.order.finish, [{
+                'key': 'orderId',
+                'value': orderId
+            }]);
+            commonAjax.ajaxPUTForm(url, null, function success() {
+                self.callout.success = '处理成功';
+                if (common.noLoginRedirect()) {
+                    url = common.replaceUrl(api.leaseOrder.info, [{
+                        'key': 'orderId',
+                        'value': orderId
+                    }]);
+                    commonAjax.ajaxGetJson(url, null, function(data) {
+                        self.$set('leaseOrder', data);
+                    });
+                }
+            }, null);
         }
+    },
+    ready: function() {
+        this.map = $('#map').yfmap();
+        this.map.setLuShu('天府广场', '三圣乡');
     }
+};
 </script>

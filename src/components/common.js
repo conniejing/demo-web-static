@@ -1,5 +1,7 @@
 var common = {};
 
+import classie from '../vendors/plugins/special/classie';
+
 // 毫秒数时间格式化为”yyyy-mm-dd'
 common.formatDate = function(date, split) {
     return this.dateFormat('date', date, split);

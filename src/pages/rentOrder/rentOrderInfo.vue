@@ -45,7 +45,6 @@
                         <button v-if="rentOrder.status==='LOANCAR'" type="button" class="btn btn-primary" @click="leased">用车人拿车</button>
                         <button v-if="rentOrder.status==='LEASED'" type="button" class="btn btn-primary" @click="returnCar">用车人还车</button>
 
-
                         <!--
                                NEW("用车人申请待审核"),不显示操作
                                ALLOWED("车主审核通过"),不显示操作
@@ -69,101 +68,110 @@
 </template>
 
 <script>
-    import common from '../../components/common';
-    import commonAjax from '../../components/commonAjax';
-    import callout from '../../components/Callout.vue';
-    import api from '../../components/apiConfig';
-
-    //列表信息获取url
-    var url = null;
-
-    export default{
-        data: function(){
-            return {
-                rentOrder: {
-                    carId: '',
-                    orderId: '',
-                    renterName: '',
-                    vehicle: {},
-                    leaseholder: ''
-                },
-                //顶部消息提示数据
-                callout: {
-                    failed: '',
-                    info: '',
-                    warning: '',
-                    success: '',
-                    autoclose: true
-                },
-                areaControl: {
-                    edit: false
-                }
+import common from '../../components/common';
+import commonAjax from '../../components/commonAjax';
+import callout from '../../components/Callout.vue';
+import api from '../../components/apiConfig';
+// 列表信息获取url
+var url = null;
+export default {
+    data: function() {
+        return {
+            rentOrder: {
+                carId: '',
+                orderId: '',
+                renterName: '',
+                vehicle: {},
+                leaseholder: ''
+            },
+            // 顶部消息提示数据
+            callout: {
+                failed: '',
+                info: '',
+                warning: '',
+                success: '',
+                autoclose: true
+            },
+            areaControl: {
+                edit: false
             }
-        },
-        components: {
-            callout
-        },
-        route: {
-            data: function(transition){
-                if(common.noLoginRedirect()){
-                    url = api.rentOrder.info;
-
-                    var routePath = transition.to.path;
-                    var pathArray = routePath.split('/');
-                    var firstPath = pathArray[1];
-                    var secPath = pathArray[2];
-                    if(secPath === "edit"){
-                        this.areaControl.edit = true;
-                    }else{
-                        this.areaControl.edit = false;
-                    }
-
-                    var orderId = transition.to.params.id;
-
-                    url = common.replaceUrl(url, [{"key": "orderId", "value": orderId}]);
-
-                    commonAjax.ajaxGetJson(url, null, function(data){
-                        var total = {
-                            "rentOrder":data
-                        }
-                        transition.next(total);
+        };
+    },
+    components: {
+        callout
+    },
+    route: {
+        data: function(transition) {
+            if (common.noLoginRedirect()) {
+                url = api.rentOrder.info;
+                var routePath = transition.to.path;
+                var pathArray = routePath.split('/');
+                //var firstPath = pathArray[1];
+                var secPath = pathArray[2];
+                if (secPath === 'edit') {
+                    this.areaControl.edit = true;
+                } else {
+                    this.areaControl.edit = false;
+                }
+                var orderId = transition.to.params.id;
+                url = common.replaceUrl(url, [{
+                    'key': 'orderId',
+                    'value': orderId
+                }]);
+                commonAjax.ajaxGetJson(url, null, function(data) {
+                    var total = {
+                        'rentOrder': data
+                    };
+                    transition.next(total);
+                });
+            }
+        }
+    },
+    methods: {
+        leased: function() {
+            var self = this;
+            var orderId = this.rentOrder.orderId;
+            var url = common.replaceUrl(api.order.leased, [{
+                'key': 'orderId',
+                'value': orderId
+            }]);
+            commonAjax.ajaxPUT(url, {}, function success() {
+                self.callout.success = '处理成功';
+                if (common.noLoginRedirect()) {
+                    url = common.replaceUrl(api.rentOrder.info, [{
+                        'key': 'orderId',
+                        'value': orderId
+                    }]);
+                    commonAjax.ajaxGetJson(url, null, function(data) {
+                        self.$set('rentOrder', data);
                     });
                 }
-            }
+            }, null);
         },
-        methods: {
-            leased: function(){
-                var self = this;
-                var orderId = this.rentOrder.orderId;
-                var url = common.replaceUrl(api.order.leased, [{"key": "orderId", "value": orderId}]);
-                commonAjax.ajaxPUT(url, {}, function success(){
-                    self.callout.success = "处理成功";
-                    if(common.noLoginRedirect()){
-                        url = common.replaceUrl(api.rentOrder.info, [{"key": "orderId", "value": orderId}]);
-                        commonAjax.ajaxGetJson(url, null, function(data){
-                            self.$set('rentOrder', data);
-                        });
-                    }
-                }, null);
-            },
-            returnCar: function(){
-                var self = this;
-                var orderId = this.rentOrder.orderId;
-                var url = common.replaceUrl(api.order.returnCar, [{"key": "orderId", "value": orderId}]);
-                commonAjax.ajaxPUT(url, {}, function success(){
-                    self.callout.success = "处理成功";
-                    if(common.noLoginRedirect()){
-                        url = common.replaceUrl(api.rentOrder.info, [{"key": "orderId", "value": orderId}]);
-                        commonAjax.ajaxGetJson(url, null, function(data){
-                            self.$set('rentOrder', data);
-                        });
-                    }
-                }, null);
-            }
-        },
-        ready: function(){
-            this.map = $("#map").yfmap();
-            this.map.setLuShu('天府广场','三圣乡');
+        returnCar: function() {
+            var self = this;
+            var orderId = this.rentOrder.orderId;
+            var url = common.replaceUrl(api.order.returnCar, [{
+                'key': 'orderId',
+                'value': orderId
+            }]);
+            commonAjax.ajaxPUT(url, {}, function success() {
+                self.callout.success = '处理成功';
+                if (common.noLoginRedirect()) {
+                    url = common.replaceUrl(api.rentOrder.info, [{
+                        'key': 'orderId',
+                        'value': orderId
+                    }]);
+                    commonAjax.ajaxGetJson(url, null, function(data) {
+                        self.$set('rentOrder', data);
+                    });
+                }
+            }, null);
         }
+    },
+    ready: function() {
+        this.map = $('#map').yfmap();
+        this.map.setLuShu('天府广场', '三圣乡');
     }
+};
 </script>

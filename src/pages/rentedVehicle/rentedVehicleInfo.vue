@@ -48,50 +48,53 @@
 </template>
 
 <script>
-    import commonAjax from '../../components/commonAjax';
-    import api from '../../components/apiConfig';
-    import common from '../../components/common';
-    import '../../components/filter';
-    export default{
-        data: function(){
-            return {
-                vehicle: {
-                    carPlate: '',
-                    vehicleIdentification: '',
-                    modelId: '',
-                    batteryModel: '',
-                    buyCarTime: '',
-                    userId:''
-                },
-                //顶部消息提示数据
-                callout: {
-                    failed: '',
-                    info: '',
-                    warning: '',
-                    success: '',
-                    autoclose: true
-                }
+import commonAjax from '../../components/commonAjax';
+import api from '../../components/apiConfig';
+import common from '../../components/common';
+import '../../components/filter';
+export default {
+    data: function() {
+        return {
+            vehicle: {
+                carPlate: '',
+                vehicleIdentification: '',
+                modelId: '',
+                batteryModel: '',
+                buyCarTime: '',
+                userId: ''
+            },
+            // 顶部消息提示数据
+            callout: {
+                failed: '',
+                info: '',
+                warning: '',
+                success: '',
+                autoclose: true
             }
-        },
-        components: {
-            //
-        },
-        route: {
-            data: function(transition){
-                if(common.noLoginRedirect()){
-                    var vehicleId = transition.to.params.id;
-                    var url = common.replaceUrl(api.rentedVehicle.info, [{"key": "id", "value": vehicleId}]);
-                    commonAjax.ajaxGetJson(url, null, function(data){
-                        var total = {
-                            "vehicle" : data
-                        }
-                        transition.next(total);
-                    });
-                }
+        };
+    },
+    components: {
+        //
+    },
+    route: {
+        data: function(transition) {
+            if (common.noLoginRedirect()) {
+                var vehicleId = transition.to.params.id;
+                var url = common.replaceUrl(api.rentedVehicle.info, [{
+                    'key': 'id',
+                    'value': vehicleId
+                }]);
+                commonAjax.ajaxGetJson(url, null, function(data) {
+                    var total = {
+                        'vehicle': data
+                    };
+                    transition.next(total);
+                });
             }
-        },
-        methods: {
-            //
         }
+    },
+    methods: {
+        //
     }
+};
 </script>

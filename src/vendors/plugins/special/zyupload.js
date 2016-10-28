@@ -2,9 +2,16 @@
  * 各个模块的插件，首先引入
 */
 
+var shortimgurl = '';
 
-//2016-11-01
-var Uploadinfo = {"policy":"eyJleHBpcmF0aW9uIjoiMjAxNi0xMS0wMVQxMjowMDowMC4wMDBaIiwiY29uZGl0aW9ucyI6W1siY29udGVudC1sZW5ndGgtcmFuZ2UiLDAsMTA0ODU3NjAwMF1dfQ==","OSSAccessKeyId":"dBnkdUrSdn7HnHrv","signature":"mbSUSgZevuDU96p8Bmc+kLf9uAg=","host":"http://cutehool.oss-cn-shanghai.aliyuncs.com","key":"runfile"}
+//2016-09-01
+var Uploadinfo = {
+    "policy":"eyJleHBpcmF0aW9uIjoiMjAxNi0xMi0wMVQxMjowMDowMC4wMDBaIiwiY29uZGl0aW9ucyI6W1siY29udGVudC1sZW5ndGgtcmFuZ2UiLDAsMTA0ODU3NjAwMF1dfQ==",
+    "OSSAccessKeyId":"dBnkdUrSdn7HnHrv",
+    "signature":"DgKLoYC8k65bCLoI05jbUNW+e3s=",
+    "host":"http://cutehool.oss-cn-shenzhen.aliyuncs.com",
+    "key":"runfile"
+}
 
 
 
@@ -160,7 +167,7 @@ var ZYFILE = {
                 // 回调到外部
                 if(xhr.status===200){
                     var key = Uploadinfo.key+"/"+gettimed+'-'+file.name;
-                    common.variable.shortimgurl = Uploadinfo.host+"/"+key;
+                    shortimgurl = Uploadinfo.host+"/"+key;
                     self.onSuccess(file, xhr.responseXML);
                     self.funDeleteFile(file.index, false);
                 }else{
@@ -183,7 +190,7 @@ var ZYFILE = {
             }
             else{
                 var key = Uploadinfo.key+"/"+gettimed+'-'+file.name;
-                new_multipart_params = {
+                var new_multipart_params = {
                     'key' : key,
                     'policy': Uploadinfo.policy,
                     'OSSAccessKeyId':  Uploadinfo.OSSAccessKeyId,
@@ -306,7 +313,7 @@ var ZYFILE = {
                 html += '               <div class="add_upload">';
                 html += '                   <a style="height:'+para.itemHeight+';width:'+para.itemWidth+';" title="点击添加文件" id="rapidAddImg" class="add_imgBox" href="javascript:void(0)">';
                 html += '                       <div class="uploadImg" style="width:'+imgWidth+'px">';
-                html += '                           <img class="upload_image" src="frontend/resources/images/fileType/add_img.png" style="width:expression(this.width > '+imgWidth+' ? '+imgWidth+'px : this.width)" />';
+                html += '                           <img class="upload_image" src="../../../src/images/fileType/add_img.png" style="width:expression(this.width > '+imgWidth+' ? '+imgWidth+'px : this.width)" />';
                 html += '                       </div>';
                 html += '                   </a>';
                 html += '               </div>';
@@ -465,6 +472,7 @@ var ZYFILE = {
                         para.onSelect(selectFiles, allFiles);  // 回调方法
                         self.funSetStatusInfo(ZYFILE.funReturnNeedFiles());  // 显示统计信息
                         var html = '', i = 0;
+                        var file = "";
                         // 组织预览html
                         var funDealtPreviewHtml = function() {
                             file = selectFiles[i];
@@ -531,8 +539,8 @@ var ZYFILE = {
                     onSuccess: function(file, response) {
                         $("#uploadProgress_" + file.index).hide();
                         $("#uploadSuccess_" + file.index).show();
-                        //common.variable.shortimgurl为完整URL路径，为了数据库节约空间，进行截取
-                        var tmpurl = common.variable.shortimgurl.substr(common.variable.shortimgurl.lastIndexOf('/')+1);
+                        //shortimgurl为完整URL路径，为了数据库节约空间，进行截取
+                        var tmpurl = shortimgurl.substr(shortimgurl.lastIndexOf('/')+1);
                         if($("#uploadList_"+file.index).length > 0){
                             $("#uploadInf").append("<div class='imginfo hide' id='wampimg"+file.index+"' val='"+file.name+"'>" + tmpurl+ "</div>");
                             tmpurl = "";

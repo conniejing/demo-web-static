@@ -64,67 +64,66 @@
 </template>
 
 <script>
-    import common from '../../components/common';
-    import commonAjax from '../../components/commonAjax';
-    import callout from '../../components/Callout.vue';
-    import api from '../../components/apiConfig';
-    import '../../components/commonValidator';
-
-    export default{
-        data: function(){
-            return {
-                //顶部消息提示数据
-                callout: {
-                    failed: '',
-                    info: '',
-                    warning: '',
-                    success: '',
-                    autoclose: true
-                },
-                user: {
-                    userName: '',
-                    nickName: '',
-                    phone: '',
-                    email: '',
-                    driverLicense: ''
-                }
+import common from '../../components/common';
+import commonAjax from '../../components/commonAjax';
+import callout from '../../components/Callout.vue';
+import api from '../../components/apiConfig';
+import '../../components/commonValidator';
+export default {
+    data: function() {
+        return {
+            // 顶部消息提示数据
+            callout: {
+                failed: '',
+                info: '',
+                warning: '',
+                success: '',
+                autoclose: true
+            },
+            user: {
+                userName: '',
+                nickName: '',
+                phone: '',
+                email: '',
+                driverLicense: ''
             }
-        },
-        components: {
-            callout
-        },
-        route: {
-            data: function(transition){
-                if(common.noLoginRedirect()){
-
-                    var url = common.replaceUrl(api.auth.myinfo, [{'key':'userId', 'value': '301'}]);
-
-                    //获取ajax请求参数
-                    var params = this.$route.query;
-                    commonAjax.ajaxGetJson(url, params, function(data){
-
-                        //调用 transition.next(data) 会为组件的 data 相应属性赋值。
-                        //例如，使用 { a: 1, b: 2 } ，路由会调用
-                        //component.$set('a', 1) 以及 component.$set('b', 2) 。
-                        //在调用 transition.next() 前组装好data
-                        var user = {
-                            "user":data
-                        }
-                        transition.next(user);
-                    });
-                }
-            }
-        },
-        methods: {
-            onSubmit: function() {
-                var self = this;
-                this.$validate(true, function(e) {
-                    if (self.$validation.valid) {
-                        //TODO 后台提供接口
-                        alert("暂未开放,敬请期待！！");
-                    }
-                })
+        };
+    },
+    components: {
+        callout
+    },
+    route: {
+        data: function(transition) {
+            if (common.noLoginRedirect()) {
+                var url = common.replaceUrl(api.auth.myinfo, [{
+                    'key': 'userId',
+                    'value': '301'
+                }]);
+                // 获取ajax请求参数
+                var params = this.$route.query;
+                commonAjax.ajaxGetJson(url, params, function(data) {
+                    // 调用 transition.next(data) 会为组件的 data 相应属性赋值。
+                    // 例如，使用 { a: 1, b: 2 } ，路由会调用
+                    // component.$set('a', 1) 以及 component.$set('b', 2) 。
+                    // 在调用 transition.next() 前组装好data
+                    var user = {
+                        'user': data
+                    };
+                    transition.next(user);
+                });
             }
         }
+    },
+    methods: {
+        onSubmit: function() {
+            var self = this;
+            this.$validate(true, function(e) {
+                if (self.$validation.valid) {
+                    // TODO 后台提供接口
+                    alert('暂未开放,敬请期待！！');
+                }
+            });
+        }
     }
+};
 </script>

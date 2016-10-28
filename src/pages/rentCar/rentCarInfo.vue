@@ -50,7 +50,7 @@
                 </div>
                 <div class="box-footer">
                     <div class="col-md-12">
-                        <button  v-if="vehicle.useStatus==='UNUSED'" type="button" class="btn btn-primary" @click="onSubmit">确认租车</button>
+                        <button v-if="vehicle.useStatus==='UNUSED'" type="button" class="btn btn-primary" @click="onSubmit">确认租车</button>
                         <button type="button" class="btn btn-default" onClick="history.back()">返回</button>
                     </div>
                 </div>
@@ -60,68 +60,73 @@
 </template>
 
 <script>
-    import common from '../../components/common';
-    import commonAjax from '../../components/commonAjax';
-    import callout from '../../components/Callout.vue';
-    import api from '../../components/apiConfig';
-    import '../../components/filter';
-    export default{
-        data: function(){
-            return {
-                vehicle: {
-                    carPlate: '',
-                    vin: '',
-                    vehicleId: '',
-                    modelId: '',
-                    batteryModel: '',
-                    buyBatteryTime: '',
-                    vehiclePic: ''
-                },
-                //顶部消息提示数据
-                callout: {
-                    failed: '',
-                    info: '',
-                    warning: '',
-                    success: '',
-                    autoclose: true
-                }
+import common from '../../components/common';
+import commonAjax from '../../components/commonAjax';
+import callout from '../../components/Callout.vue';
+import api from '../../components/apiConfig';
+import '../../components/filter';
+export default {
+    data: function() {
+        return {
+            vehicle: {
+                carPlate: '',
+                vin: '',
+                vehicleId: '',
+                modelId: '',
+                batteryModel: '',
+                buyBatteryTime: '',
+                vehiclePic: ''
+            },
+            // 顶部消息提示数据
+            callout: {
+                failed: '',
+                info: '',
+                warning: '',
+                success: '',
+                autoclose: true
             }
-        },
-        components: {
-            callout
-        },
-        route: {
-            data: function(transition){
-                if(common.noLoginRedirect()){
-                    var vehicleId = transition.to.params.id;
-
-                    var url = common.replaceUrl(api.vehicle.info, [{"key": "id", "value": vehicleId}]);
-                    commonAjax.ajaxGetJson(url, null, function(data){
-                        data.vehicleId = vehicleId;
-                        var vehicle = {
-                            "vehicle":data
-                        }
-                        transition.next(vehicle);
-                    });
-                }
-            }
-        },
-        methods: {
-            onSubmit: function(){
-                var self = this;
-                var vehicleId = this.vehicle.vehicleId;
-                commonAjax.ajaxPostForm(api.order.new, {"vehicleId":vehicleId}, function success(){
-                    self.callout.success = "申请成功";
-                    if(common.noLoginRedirect()){
-                        var url = common.replaceUrl(api.vehicle.info, [{"key": "id", "value": vehicleId}]);
-                        commonAjax.ajaxGetJson(url, null, function(data){
-                            self.$set('vehicle', data);
-                        });
-                    }
-
-                }, null);
-
+        };
+    },
+    components: {
+        callout
+    },
+    route: {
+        data: function(transition) {
+            if (common.noLoginRedirect()) {
+                var vehicleId = transition.to.params.id;
+                var url = common.replaceUrl(api.vehicle.info, [{
+                    'key': 'id',
+                    'value': vehicleId
+                }]);
+                commonAjax.ajaxGetJson(url, null, function(data) {
+                    data.vehicleId = vehicleId;
+                    var vehicle = {
+                        'vehicle': data
+                    };
+                    transition.next(vehicle);
+                });
             }
         }
+    },
+    methods: {
+        onSubmit: function() {
+            var self = this;
+            var vehicleId = this.vehicle.vehicleId;
+            commonAjax.ajaxPostForm(api.order.new, {
+                'vehicleId': vehicleId
+            }, function success() {
+                self.callout.success = '申请成功';
+                if (common.noLoginRedirect()) {
+                    var url = common.replaceUrl(api.vehicle.info, [{
+                        'key': 'id',
+                        'value': vehicleId
+                    }]);
+                    commonAjax.ajaxGetJson(url, null, function(data) {
+                        self.$set('vehicle', data);
+                    });
+                }
+            }, null);
+        }
     }
+};
 </script>
