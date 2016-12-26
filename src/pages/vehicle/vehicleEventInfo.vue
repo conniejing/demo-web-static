@@ -39,7 +39,6 @@
 
 <script>
 import commonAjax from '../../components/commonAjax';
-import callout from '../../components/Callout.vue';
 import api from '../../components/apiConfig';
 import common from '../../components/common';
 import '../../components/filter';
@@ -59,9 +58,6 @@ export default {
                 autoclose: true
             }
         };
-    },
-    components: {
-        callout
     },
     route: {
         data: function(transition) {

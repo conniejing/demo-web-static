@@ -17,6 +17,7 @@
                                     </div>
                                 </div>
                                 <div class="box-body">
+                                    <loading-comp v-show="orderLoading"></loading-comp>
                                     <p v-for="untreatedOrder in untreatedOrders | limitBy 10">
                                         <span v-text="untreatedOrder.orderId"></span>
                                     </p>
@@ -32,6 +33,7 @@
                                     </div>
                                 </div>
                                 <div class="box-body">
+                                    <loading-comp v-show="notificationLoading"></loading-comp>
                                     <p v-for="notification in unreadNotifications | limitBy 10">
                                         <span v-text="notification.content"></span>
                                     </p>
@@ -48,7 +50,7 @@
 <script>
 import common from '../../components/common';
 import commonAjax from '../../components/commonAjax';
-import callout from '../../components/Callout.vue';
+import loadingComp from '../../components/Loading.vue';
 import api from '../../components/apiConfig';
 export default {
     data: function() {
@@ -64,15 +66,18 @@ export default {
             unreadNotifications: [],
             unreadNotificationsTotalCount: 0,
             untreatedOrders: [],
-            untreatedOrdersTotalCount: 0
+            untreatedOrdersTotalCount: 0,
+            notificationLoading: true,
+            orderLoading: true
         };
     },
     components: {
-        callout
+        loadingComp
     },
     route: {
         data: function(transition) {
             if (common.noLoginRedirect()) {
+                var self = this;
                 var userId = '301';
                 var unreadNotificationUrl = common.replaceUrl(api.auth.unreadNotifications, [{
                     'key': 'userId',
@@ -83,15 +88,23 @@ export default {
                     'value': userId
                 }]);
                 var result = {};
-                commonAjax.ajaxGetJson(unreadNotificationUrl, null, function(data) {
-                    result.unreadNotifications = data.notificationDTOs;
-                    result.unreadNotificationsTotalCount = data.totalCount;
-                });
-                commonAjax.ajaxGetJson(untreatedOrdersUrl, null, function(data) {
-                    result.untreatedOrders = data.orders;
-                    result.untreatedOrdersTotalCount = data.totalCount;
-                });
-                transition.next(result);
+                setTimeout(function(){
+                    commonAjax.ajaxGetJson(unreadNotificationUrl, null, function(data) {
+                        result.unreadNotifications = data.notificationDTOs;
+                        result.unreadNotificationsTotalCount = data.totalCount;
+                        self.notificationLoading = false;
+                        transition.next(result);
+                    });
+                },2000);
+                setTimeout(function(){
+                    commonAjax.ajaxGetJson(untreatedOrdersUrl, null, function(data) {
+                        result.untreatedOrders = data.orders;
+                        result.untreatedOrdersTotalCount = data.totalCount;
+                        self.orderLoading = false;
+                        transition.next(result);
+                    });
+                },2500);                
+                // transition.next(result);
             }
         }
     },

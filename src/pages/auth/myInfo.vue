@@ -66,7 +66,6 @@
 <script>
 import common from '../../components/common';
 import commonAjax from '../../components/commonAjax';
-import callout from '../../components/Callout.vue';
 import api from '../../components/apiConfig';
 import '../../components/commonValidator';
 export default {
@@ -88,9 +87,6 @@ export default {
                 driverLicense: ''
             }
         };
-    },
-    components: {
-        callout
     },
     route: {
         data: function(transition) {

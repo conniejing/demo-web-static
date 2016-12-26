@@ -1,3 +1,25 @@
+<style>
+.loading-btn {
+    position: relative;
+    width: 200px;
+    height: 100px;
+}
+
+.marker {
+    color: #000;
+    padding: 4px 10px;
+    border: 1px solid #fff;
+    white-space: nowrap;
+    font-size: 12px;
+    font-family: "";
+    background: #fff;
+    border-radius: 2px;
+    box-shadow: 0 0 8px 0 rgba(0, 0, 0, .5);
+    position: absolute;
+    top: 5px;
+    left: 25px;
+}
+</style>
 <template>
     <section class="content">
         <callout :autoclose="callout.autoclose" :failed.sync="callout.failed" :info.sync="callout.info" :warning.sync="callout.warning" :success.sync="callout.success"></callout>
@@ -15,25 +37,63 @@
                             <h1 class="col-md-12">demo演示</h1>
                         </div>
                         <div class="row everydemo">
-                            <h2 class="col-md-12">时间控件</h2>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>开始时间</label>
-                                    <input id="startTime" type="text" class="form-control" v-model="params.startTime" />
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>结束时间</label>
-                                    <input id="endTime" type="text" class="form-control" v-model="params.endTime" />
-                                </div>
+                            <h2 class="col-md-12">加载中效果</h2>
+                            <div class="col-md-12">
+                                <button type="button" class="btn btn-default pull-left loading-btn" @click="corloading">点击加载
+                                    <loading-comp v-show="loading"></loading-comp>
+                                </button>
                             </div>
                         </div>
                         <div class="row everydemo">
-                            <h2 class="col-md-12">加载中效果</h2>
+                            <h2 class="col-md-12">Form</h2>
                             <div class="col-md-12">
-                                <button type="button" class="btn btn-primary pull-left" @click="loading">满屏加载</button>
-                                <button type="button" class="btn btn-default pull-left" @click="corloading">角落加载</button>
+                                <v-form v-ref:form :action="formParam.submitUrl" :method="formParam.submitMethod" :data-type="formParam.dataType">
+                                    <div class="box-body">
+                                        <div class="col-md-6">
+                                            <v-input label="车牌" field-type="text" name="carPlate" placeholder="川A ABC12" :value.sync="tmpValue.carPlate" :validator="{ required: true, minlength: 3, maxlength: 6}"></v-input>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <v-input label="密码" field-type="password" name="password" :value.sync="tmpValue.password" :validator="{ required: true, minlength: 3, maxlength: 6}"></v-input>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <v-input label="年龄" field-type="number" name="age" :value.sync="tmpValue.age" :validator="{ required: true, min: 0, max: 100 }"></v-input>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <v-input label="邮箱" field-type="email" name="email" :value.sync="tmpValue.email" :validator="{ required: true }"></v-input>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <v-select label="职业" name="career" :value.sync="tmpValue.career" placeholder="--请选择职业--" :items="tmpValue.careerList" :validator="{ required: true }"></v-select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <v-radio label="性别" name="sex" :value.sync="tmpValue.sex" :items="tmpValue.sexList" :validator="{ required: true }"></v-radio>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <v-checkbox multiple label="车辆品牌" name="car" :value.sync="tmpValue.car" :items="tmpValue.carList" :validator="{ required: true }"></v-checkbox>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <v-checkbox label="是否拥有车" name="has" :value.sync="tmpValue.has" :text="tmpValue.hasText"></v-checkbox>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <vue-datetime-picker label="购买时间" name="picker1" :value.sync="tmpValue.buyBatteryTime" language="zh-CN" :validator="{ required: true }">
+                                            </vue-datetime-picker>
+                                        </div>
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-6">
+                                                <vue-datetime-picker v-ref:start-picker label="开始时间" name="startTime" :value.sync="tmpValue.startTime" :on-change="onStartDatetimeChanged" :validator="{ required: true }"></vue-datetime-picker>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <vue-datetime-picker v-ref:end-picker label="结束时间" name="endTime" :value.sync="tmpValue.endTime" :on-change="onEndDatetimeChanged" :validator="{ required: true }"></vue-datetime-picker>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="box-footer">
+                                        <div class="col-md-12">
+                                            <button type="submit" class="btn btn-primary" @click.stop.prevent="submit">保存</button>
+                                            <button type="button" class="btn btn-default" onClick="history.back()">取消</button>
+                                            <button type="button" class="btn btn-default" @click.stop.prevent="reset(tmpValue)">重置</button>
+                                        </div>
+                                    </div>
+                                </v-form>
                             </div>
                         </div>
                         <div class="row everydemo">
@@ -152,37 +212,18 @@
                             </div>
                         </div>
                         <div class="row everydemo">
-                            <h2 class="col-md-12" style="margin-bottom: 50px">图表chart</h2>
-                            <div class="col-md-6">
-                                <canvas id="myChart1" width="400" height="400"></canvas>
-                            </div>
-                            <div class="col-md-6">
-                                <canvas id="myChart2" width="400" height="400"></canvas>
+                            <h2 class="col-md-12" style="margin-bottom: 30px">查看大图</h2>
+                            <div class="col-md-3" v-for="n in 4">
+                                <light-box></light-box>
                             </div>
                         </div>
                         <div class="row everydemo">
-                            <h2 class="col-md-12" style="margin-bottom: 30px">查看大图</h2>
-                            <div class="col-md-3" v-for="n in 4">
-                                <a data-lightbox="m" href="http://res.meng2u.com/user_icon/024/928/YNmwblJvoM8GjfXf.jpg"><img src="http://res.meng2u.com/user_icon/024/928/YNmwblJvoM8GjfXf.jpg" width="200" height="200" alt="" /></a>
-                            </div>
+                            <h2 class="col-md-12" style="margin-bottom: 30px">多级联动</h2>
+                            <linkage linkclass="linkage" :nums="4" introduce="--请选择职业--" linkurl="http://121.42.24.196:8299/yf/linkageData.php?action=data1"></linkage>
                         </div>
                         <div class="row everydemo">
                             <h2 class="col-md-12" style="margin-bottom: 30px">联动城市选择</h2>
-                            <div class="col-md-12 docs-methods">
-                                <form class="form-inline">
-                                    <div id="distpicker">
-                                        <div class="form-group">
-                                            <div style="position: relative;">
-                                                <input id="city-picker3" class="form-control" readonly type="text" value="江苏省/常州市/溧阳市" data-toggle="city-picker">
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <button class="btn btn-warning" id="reset" type="button">重置</button>
-                                            <button class="btn btn-danger" id="destroy" type="button">确定</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
+                            <area-select width="300px" label="城市选择" name="city" :value.sync="四川省/成都市/锦江区" :validator="{ required: true }"></area-select>
 
                         </div>
                         <div class="row everydemo">
@@ -218,16 +259,18 @@
 </template>
 
 <script>
+import commonAjax from '../../components/commonAjax';
 import common from '../../components/common';
-import callout from '../../components/Callout.vue';
-import '../../vendors/plugins/special/lightbox-2.6.min';
+import loadingComp from '../../components/Loading.vue'; // 加载组件
+import formComps from '../../components/mixins/formComps.js'; // form mixins
+import AreaSelect from '../../components/fields/AreaSelect.vue'; // 三级地区选择组件
+import Linkage from '../../components/fields/Linkage.vue'; // 多级联动组件
+import LightBox from '../../components/fields/Lightbox.vue'; // 查看大图
 import '../../vendors/plugins/special/zyupload';
 import '../../vendors/plugins/special/jquery.webui-popover';
 import '../../vendors/plugins/special/sweetalert';
-// import ChineseDistricts from '../../vendors/plugins/special/citydata';
-import '../../vendors/plugins/special/city';
-import Chart from 'chart.js';
 export default {
+    mixins: [formComps],
     data: function() {
         return {
             pagination: {
@@ -250,11 +293,63 @@ export default {
                 autoclose: true
             },
             // autocomplete获取的数据
-            autodata: []
+            autodata: [],
+            loading: false, // 加载数据
+            // form表单数据
+            tmpValue: {
+                carPlate: 'A',
+                password: '',
+                age: 18,
+                email: 'connie@163.com',
+                career: '',
+                careerList: [{
+                    id: 1,
+                    text: '医生'
+                }, {
+                    id: 2,
+                    text: '老师'
+                }],
+                sex: '',
+                sexList: [{
+                    id: 1,
+                    text: '男'
+                }, {
+                    id: 2,
+                    text: '女'
+                }],
+                car: [1],
+                carList: [{
+                    id: 1,
+                    text: '大众'
+                }, {
+                    id: 2,
+                    text: '丰田'
+                }, {
+                    id: 3,
+                    text: '云蜂'
+                }, {
+                    id: 4,
+                    text: '宝马'
+                }],
+                has: false,
+                hasText: '拥有',
+                buyBatteryTime: null,
+                startTime: null,
+                endTime: null
+            },
+            formParam: {
+                submitUrl: '',
+                submitMethod: '',
+                dataType: '',
+                message: ''
+            }
         };
     },
     components: {
-        callout
+        loadingComp,
+        AreaSelect,
+        Linkage,
+        LightBox
     },
     route: {
         data: function(transition) {
@@ -264,17 +359,33 @@ export default {
         }
     },
     methods: {
-        loading: function() {
-            common.UI.setload();
+        // 加载
+        corloading: function() {
+            var self = this;
+            self.loading = true;
             setTimeout(function() {
-                common.UI.removeload();
+                self.loading = false;
             }, 2000);
         },
-        corloading: function() {
-            common.UI.setcornerload();
-            setTimeout(function() {
-                common.UI.removecornerload();
-            }, 2000);
+        // form表单
+        reset: function(arg) {
+            this.$refs.form.$children.forEach(function(field) {
+                field.reset();
+            })
+        },
+        submit: function() {
+            if (this.$refs.form.validateForm()) {
+                alert('submit');
+                this.$refs.form.submitForm();
+            }
+        },
+        onStartDatetimeChanged: function(newStart) {
+            var endPicker = this.$refs.endPicker.control;
+            endPicker.minDate(newStart);
+        },
+        onEndDatetimeChanged: function(newEnd) {
+            var startPicker = this.$refs.startPicker.control;
+            startPicker.maxDate(newEnd);
         },
         sweetSuccess: function() {
             swal({
@@ -354,98 +465,6 @@ export default {
         //
     },
     ready: function() {
-        // 初始化时间控件
-        $('#startTime').datetimepicker({
-            format: 'yyyy-mm-dd hh:ii:ss',
-            autoclose: true,
-            minuteStep: 1
-        });
-        $('#endTime').datetimepicker({
-            format: 'yyyy-mm-dd hh:ii:ss',
-            autoclose: true,
-            minuteStep: 1
-        });
-        // 结束时间需大于开始时间
-        $(document).on('change', '#startTime', function() {
-            var TimeValue = $(this).val();
-            if (TimeValue !== '') {
-                $('#endTime').datetimepicker('setStartDate', TimeValue);
-            }
-        });
-        $(document).on('change', '#endTime', function() {
-            var TimeValue = $(this).val();
-            if (TimeValue !== '') {
-                $('#startTime').datetimepicker('setEndDate', TimeValue);
-            }
-        });
-        // 初始化图表chart
-        // http://www.bootcss.com/p/chart.js/docs/
-        var ctx1 = document.getElementById("myChart1");
-        var myChart1 = new Chart(ctx1, {
-            type: 'bar',
-            data: {
-                labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
-                datasets: [{
-                    label: '# of Votes',
-                    data: [12, 19, 3, 5, 2, 3],
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(255, 159, 64, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255,99,132,1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero:true
-                        }
-                    }]
-                }
-            }
-        });
-        var ctx2 = document.getElementById("myChart2");
-        var myChart2 = new Chart(ctx2,{
-            type: 'pie',
-            data: {
-                labels: [
-                    "Red",
-                    "Blue",
-                    "Yellow"
-                ],
-                datasets: [
-                    {
-                        data: [300, 50, 100],
-                        backgroundColor: [
-                            "#FF6384",
-                            "#36A2EB",
-                            "#FFCE56"
-                        ],
-                        hoverBackgroundColor: [
-                            "#FF6384",
-                            "#36A2EB",
-                            "#FFCE56"
-                        ]
-                    }]
-            },
-            options: ''
-        });
-
-
-
         // 初始化上传组件
         $('#demoUpload').zyUpload({
             width: '100%', // 宽度
@@ -456,44 +475,14 @@ export default {
             multiple: true, // 是否可以多个文件上传
             dragDrop: false, // 是否可以拖动上传文件
             del: true, // 是否可以删除文件
-            finishDel: false, // 是否在上传文件完成后删除预览
+            finishDel: false // 是否在上传文件完成后删除预览
         });
-
         // Tooltips 提示框
         // https://github.com/sandywalker/webui-popover
         $('#showTooltips1').webuiPopover();
         $('#showTooltips2').webuiPopover({
             animation: 'pop'
         });
-
-        // 三级联动，地区组件
-//        var $citypicker1 = $('#city-picker1');
-//
-//        $citypicker1.citypicker();
-//
-//        var $citypicker2 = $('#city-picker2');
-//
-//        $citypicker2.citypicker({
-//            province: '江苏省',
-//            city: '常州市',
-//            district: '溧阳市'
-//        });
-
-        var $citypicker3 = $('#city-picker3');
-
-        $('#reset').click(function () {
-            $citypicker3.citypicker('reset');
-        });
-
-        $('#destroy').click(function () {
-            $citypicker3.citypicker('destroy');
-        });
-
-        $('[data-toggle="city-picker"]').citypicker();
-
-
-
-
 
 
         //Gid('s_county').setAttribute('onchange', 'showArea()');

@@ -37,12 +37,66 @@
             </div>
         </div>
         <div class="row">
-            <grid :grid-columns=gridColumns :grid-data=vehicleList :grid-opts=options :pagination=pagination :loading=loading>
-                <h3 slot="box-title" class="box-title">车辆列表</h3>
-                <div slot="action-button">
-                    <button type="button" class="btn btn-default halfCircle" v-link="{ path: '/vehicle/add' }">新增 <i class="fa fa-plus"></i></button>
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">车辆列表</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-md-12 form-group">
+                                <button type="button" class="btn btn-default halfCircle" v-link="{ path: '/vehicle/add' }">新增 <i class="fa fa-plus"></i></button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id="vehicleList" class="table table-bordered table-list">
+                                    <thead>
+                                        <tr>
+                                            <th>车牌</th>
+                                            <th>购买时间</th>
+                                            <th>车型</th>
+                                            <th>电池型号</th>
+                                            <th>车辆审核状态</th>
+                                            <th>保险期限</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="vehicle in vehicleList">
+                                            <td v-text="vehicle.carPlate"></td>
+                                            <td v-text="vehicle.buyCarTime | date"></td>
+                                            <td v-text="vehicle.modelId"></td>
+                                            <td v-text="vehicle.batteryModel"></td>
+                                            <td>
+                                                <span v-if="vehicle.auditStatus === 'UNAUDITED'">待审核</span>
+                                                <span v-if="vehicle.auditStatus === 'AUDIT'">已审核</span>
+                                            </td>
+                                            <td v-text="vehicle.insuranceTime | date"></td>
+                                            <td>
+                                                <a v-link="{ path: '/vehicle/info/' + vehicle.id }">详情</a>
+                                                <template v-if="userRole">
+                                                    <a v-link="{ path: '/vehicle/edit/' + vehicle.id }">修改</a>
+                                                    <a href="#" @click.stop.prevent="remove(vehicle.id)">删除</a>
+                                                </template>
+                                                <a v-link="{ path: '/vehicle/monitor/' + vehicle.id }">定位</a>
+                                                <a v-link="{ path: '/vehicle/event?carPlate=' + vehicle.carPlate}">事件</a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-12 tableInfo" v-if="pagination.totalSize =='0'">
+                                <i class="tableInfoIcon fa fa-bell"></i>
+                                <p class="tableInfoText">没有查询到数据</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <pagination :page=pagination.page :page-size=pagination.pageSize :total-size=pagination.totalSize></pagination>
+                        </div>
+                    </div>
                 </div>
-            </grid>
+            </div>
         </div>
     </section>
 </template>
@@ -50,7 +104,7 @@
 <script>
 import commonAjax from '../../components/commonAjax';
 import common from '../../components/common';
-import grid from '../../components/Grid.vue';
+import pagination from '../../components/Pagination.vue';
 import api from '../../components/apiConfig';
 import '../../components/filter';
 import vex from '../../vendors/vex/vex.combined.js';
@@ -58,63 +112,12 @@ vex.defaultOptions.className = 'vex-theme-os';
 export default {
     data: function() {
         return {
-            gridColumns: [{
-                title: '车牌',
-                name: 'carPlate'
-            }, {
-                title: '购买时间',
-                name: 'buyCarTime',
-                filter: 'date'
-            }, {
-                title: '车型',
-                name: 'modelId'
-            }, {
-                title: '电池型号',
-                name: 'batteryModel'
-            }, {
-                title: '车辆审核状态',
-                name: 'auditStatus',
-                type: 'enum',
-                UNAUDITED: '待审核',
-                AUDIT: '已审核'
-            }, {
-                title: '保险期限',
-                name: 'insuranceTime',
-                filter: 'date'
-            }],
-            options: {
-                title: "操作",
-                templates: {
-                    info: function(item) {
-                        return `<a href='#!/vehicle/info/${item.id}'>详情</a>`;
-                    },
-                    edit: function(item) {
-                        if(sessionStorage.getItem('userRole') !== 'admin'){
-                            return `<a href='#!/vehicle/edit/${item.id}'>修改</a>`;
-                        }
-                        return '';
-                    },
-                    remove: function(item) {
-                        if(sessionStorage.getItem('userRole') !== 'admin'){
-                            return `<a href='javascript:void(0);' @click.stop.prevent='$parent.remove(${item.id})'>删除</a>`;
-                        }
-                        return '';
-                    },
-                    monitor: function(item) {
-                        return `<a href='#!/vehicle/monitor/${item.id}'>定位</a>`;
-                    },
-                    event: function(item) {
-                        return `<a href='#!/vehicle/event?carPlate=${item.carPlate}'>事件</a>`;
-                    }
-                }
-            },
-            vehicleList: [],
             pagination: {
                 pageSize: '',
                 totalSize: '',
                 page: ''
             },
-            loading: true,
+            vehicleList: [],
             params: {
                 carPlate: '',
                 auditStatus: ''
@@ -125,15 +128,15 @@ export default {
                 warning: '',
                 success: '',
                 autoclose: true
-            }
+            },
+            userRole: sessionStorage.getItem('userRole') !== 'admin'
         };
     },
     components: {
-        grid
+        pagination
     },
     route: {
         data: function(transition) {
-            var self = this;
             if (common.noLoginRedirect()) {
                 // 通过路由的query对象设置初始搜索参数
                 this.params.carPlate = this.$route.query.carPlate;
@@ -143,22 +146,17 @@ export default {
                 params.userId = '301';
                 // TODO 需要对接userId
                 // params.userId = common.getUserId();
-                self.loading = true;
-                setTimeout(function(){
-                    commonAjax.ajaxGetJson(api.vehicle.list, params, function(data) {
-                        var total = {
-                            'vehicleList': data.rows,
-                            'pagination': {
-                                'pageSize': data.pageSize,
-                                'totalSize': data.totalRows,
-                                'page': data.pageNo
-                            },
-                            'loading': false
-                        };
-                        transition.next(total);
-                    });
-                },1500);
-                
+                commonAjax.ajaxGetJson(api.vehicle.list, params, function(data) {
+                    var total = {
+                        'vehicleList': data.rows,
+                        'pagination': {
+                            'pageSize': data.pageSize,
+                            'totalSize': data.totalRows,
+                            'page': data.pageNo
+                        }
+                    };
+                    transition.next(total);
+                });
             }
         }
     },
@@ -216,6 +214,16 @@ export default {
                     }
                 });
             }
+        }
+    },
+    events: {
+        setPage: function(index) {
+            this.$route.query.pageNo = index;
+            this.$route.query.pageSize = this.pagination.pageSize;
+            var params = this.$route.query;
+            router.go({
+                query: params
+            });
         }
     }
 };

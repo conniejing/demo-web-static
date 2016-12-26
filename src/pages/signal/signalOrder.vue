@@ -14,27 +14,22 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>开始时间</label>
-                                    <input id="startTime" type="text" class="form-control" v-model="params.startTime" />
-                                </div>
-                                <div class="form-group">
-                                    <label>结束时间</label>
-                                    <input id="endTime" type="text" class="form-control" v-model="params.endTime" />
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label>车牌</label>
-                                    <input type="text" class="form-control" placeholder="" v-model="params.carPlate">
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label>处理状态</label>
+                                    <label>选择车辆的VIN码</label>
                                     <select class="form-control" v-model="params.eventStatus">
-                                        <option value="UNHANDLE">待处理</option>
-                                        <option value="HANDLE">已处理</option>
+                                        <option value="KNB20198752343234">KNB20198752343234</option>
+                                        <option value="WDB2012012DK23KR0">WDB2012012DK23KR0</option>
+                                        <option value="DES9384728EK3OFM4">DES9384728EK3OFM4</option>
+                                        <option value="WOD2493041F94MR42">WOD2493041F94MR42</option>
+                                        <option value="OEK4825831F244F4F">OEK4825831F244F4F</option>
                                     </select>
+                                </div>
+                            </div>
+                            <div class="col-md-8 row">
+                                <div class="col-md-6">
+                                    <vue-datetime-picker v-ref:start-picker label="开始时间" name="startTime" :value.sync="params.startTime" :on-change="onStartDatetimeChanged" :validator="{ required: true }"></vue-datetime-picker>
+                                </div>
+                                <div class="col-md-6">
+                                    <vue-datetime-picker v-ref:end-picker label="结束时间" name="endTime" :value.sync="params.endTime" :on-change="onEndDatetimeChanged" :validator="{ required: true }"></vue-datetime-picker>
                                 </div>
                             </div>
                             <div class="col-md-12 btn-toolbar">
@@ -59,34 +54,31 @@ import commonAjax from '../../components/commonAjax';
 import grid from '../../components/Grid.vue';
 import api from '../../components/apiConfig';
 import common from '../../components/common';
+import vueDatetimePicker from '../../components/fields/VueDatetimePicker.vue'
 import '../../components/filter';
 export default {
     data: function() {
         return {
             gridColumns: [{
-                title: '车牌',
-                name: 'carPlate'
+                title: '信号名',
+                name: 'signalName'
             }, {
-                title: '上报时间',
+                title: '信号值',
+                name: 'signalValue'
+            }, {
+                title: '阀值',
+                name: 'signalMax'
+            }, {
+                title: '故障类型',
+                name: 'type'
+            }, {
+                title: '故障描述',
+                name: 'detail'
+            }, {
+                title: '数据采集时间',
                 name: 'time',
-                filter: 'date'
-            }, {
-                title: '内容',
-                name: 'content'
-            }, {
-                title: '处理状态',
-                name: 'handleStatus',
-                type: 'enum',
-                HANDLE: '处理中'
+                filter: 'dateTime'
             }],
-            options: {
-                title: '操作',
-                templates: {
-                    info: function(item){
-                        return `<a v-link="{ path: '/vehicle/event/id?id=${item.id}'}">详情</a>`;
-                    }
-                }
-            },
             vehicleEventList: [],
             pagination: {
                 pageSize: '',
@@ -96,8 +88,8 @@ export default {
             loading: true,
             params: {
                 carPlate: null,
-                startTime: '',
-                endTime: '',
+                startTime: null,
+                endTime: null,
                 eventStatus: ''
             },
             callout: {
@@ -110,22 +102,23 @@ export default {
         };
     },
     components: {
-        grid
+        grid,
+        vueDatetimePicker
     },
     route: {
         data: function(transition) {
             var self = this;
             if (common.noLoginRedirect()) {
                 this.params.carPlate = this.$route.query.carPlate;
-                this.params.startTime = this.$route.query.startTime;
-                this.params.endTime = this.$route.query.endTime;
+//                this.params.startTime = this.$route.query.startTime;
+//                this.params.endTime = this.$route.query.endTime;
                 this.params.eventStatus = this.$route.query.eventStatus;
                 // 获取ajax请求参数
                 var params = this.$route.query;
                 // TODO 需要对接userId
                 // params.userId = common.getUserId();
                 self.loading = true;
-                commonAjax.ajaxGetJson(api.vehicle.eventList, params, function(data) {
+                commonAjax.ajaxGetJson("../src/pages/signal/signalOrder.json", params, function(data) {
                     var result = {
                         'vehicleEventList': data.rows,
                         'pagination': {
@@ -142,6 +135,14 @@ export default {
         }
     },
     methods: {
+        onStartDatetimeChanged: function(newStart) {
+            var endPicker = this.$refs.endPicker.control;
+            endPicker.minDate(newStart);
+        },
+        onEndDatetimeChanged: function(newEnd) {
+            var startPicker = this.$refs.startPicker.control;
+            startPicker.maxDate(newEnd);
+        },
         searchReset: function() {
             this.params = {
                 carPlate: null,
@@ -169,6 +170,14 @@ export default {
             router.go({
                 query: params
             });
+        },
+        onStartDatetimeChanged: function(newStart) {
+            var endPicker = this.$refs.endPicker.control;
+            endPicker.minDate(newStart);
+        },
+        onEndDatetimeChanged: function(newEnd) {
+            var startPicker = this.$refs.startPicker.control;
+            startPicker.maxDate(newEnd);
         },
         initDateTime: function() {
             // 设置日期控件初始值
@@ -204,30 +213,13 @@ export default {
         }
     },
     ready: function() {
-        $('#startTime').datetimepicker({
-            format: 'yyyy-mm-dd hh:ii:ss',
-            autoclose: true,
-            minuteStep: 1
-        });
-        $('#endTime').datetimepicker({
-            format: 'yyyy-mm-dd hh:ii:ss',
-            autoclose: true,
-            minuteStep: 1
-        });
-        this.initDateTime();
-        // 结束时间需大于开始时间
-        $(document).on('change', '#startTime', function() {
-            var TimeValue = $(this).val();
-            if (TimeValue !== '') {
-                $('#endTime').datetimepicker('setStartDate', TimeValue);
+        setTimeout(function () {
+            var tr = $(".table tbody").find("tr");
+            for (var i in tr) {
+                if(i == 1) tr.eq(i).find("td").eq(0).attr("rowspan","19");
+                if(i > 1 && i < 20) tr.eq(i).find("td").eq(0).remove();
             }
-        });
-        $(document).on('change', '#endTime', function() {
-            var TimeValue = $(this).val();
-            if (TimeValue !== '') {
-                $('#startTime').datetimepicker('setEndDate', TimeValue);
-            }
-        });
+        },200);
     }
 };
 </script>

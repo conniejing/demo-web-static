@@ -41,7 +41,6 @@
 
 <script>
 import commonAjax from '../../components/commonAjax';
-import callout from '../../components/Callout.vue';
 import api from '../../components/apiConfig';
 import '../../components/commonValidator';
 export default {
@@ -60,9 +59,6 @@ export default {
                 password: ''
             }
         }
-    },
-    components: {
-        callout
     },
     methods: {
         onSubmit: function() {
