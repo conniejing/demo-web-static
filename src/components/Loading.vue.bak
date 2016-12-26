@@ -1,0 +1,9 @@
+<template>
+    <!--setcornerload-->
+	<div class="la-anim-10"></div>
+
+	<!--setload-->
+	<div class="bgzhe zhehide" style="display:none">
+	    <div class='loader loader-glisteningWindow'></div>
+	</div>
+</template>

@@ -35,12 +35,12 @@
                         <!--<li>-->
                         <!--<a v-link="{ path: '/admin/list' }">管理员列表</a>-->
                         <!--</li>-->
-                        <li>
+                        <!-- <li>
                             <a v-link="{ path: '/customer/list' }">用户列表</a>
-                        </li>
+                        </li> -->
                     </ul>
                 </li>
-                <li class="treeview" :class="{ 'active' : $route.matched[0].handler.path ==='/rentOrder' }">
+                <!-- <li class="treeview" :class="{ 'active' : $route.matched[0].handler.path ==='/rentOrder' }">
                     <a href="#">
                         <span>租车管理</span>
                         <span class="pull-right-container">
@@ -58,6 +58,26 @@
                             <a v-link="{ path: '/rentOrder/rentStatistics' }">租车人统计</a>
                         </li>
                     </ul>
+                </li> -->
+                <li class="treeview" :class="{ 'active' : $route.matched[0].handler.path ==='/mapCar' }">
+                    <a v-link="{ path: '/mapCar' }">
+                        <span>车辆当前位置</span>
+                    </a>
+                </li>
+                <li class="treeview" :class="{ 'active' : $route.matched[0].handler.path ==='/signalSearch' }">
+                    <a v-link="{ path: '/signalSearch' }">
+                        <span>远程信号查询</span>
+                    </a>
+                </li>
+                <li class="treeview" :class="{ 'active' : $route.matched[0].handler.path ==='/signalMonitor' }">
+                    <a v-link="{ path: '/signalMonitor' }">
+                        <span>远程信号实时监控</span>
+                    </a>
+                </li>
+                <li class="treeview" :class="{ 'active' : $route.matched[0].handler.path ==='/signalOrder' }">
+                    <a v-link="{ path: '/signalOrder' }">
+                        <span>信号故障报警查询</span>
+                    </a>
                 </li>
                 <li class="treeview">
                     <a href="#" @click.stop.prevent="logout">

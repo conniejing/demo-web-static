@@ -1,5 +1,5 @@
 var api = {};
-var apiEnv = 'mock';
+var apiEnv = 'http://localhost:8080/mock';
 
 /* auth 注册、登陆、认证、个人信息 */
 api.auth = {};

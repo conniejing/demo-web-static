@@ -8,11 +8,9 @@ Vue.filter('date', function(value) {
     return value;
 });
 
-Vue.filter('dateTime', {
-    read: function(value) {
-        if (value > 0) {
-            return common.formatDateTime(value);
-        }
-        return value;
+Vue.filter('dateTime', function(value) {
+    if (value > 0) {
+        return common.formatDateTime(value);
     }
+    return value;
 });

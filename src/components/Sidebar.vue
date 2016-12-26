@@ -110,11 +110,21 @@
                         </li>
                     </ul>
                 </li>
-                <li class="treeview">
+                <!-- <li class="treeview">
                     <a v-link="{ path: '/demo' }">
                         <span>demo演示</span>
                     </a>
                 </li>
+                <li class="treeview">
+                    <a v-link="{ path: '/map' }">
+                        <span>地图demo</span>
+                    </a>
+                </li>
+                <li class="treeview">
+                    <a v-link="{ path: '/slider' }">
+                        <span>滚动图片</span>
+                    </a>
+                </li> -->
                 <li class="treeview">
                     <a href="#" @click.stop.prevent="logout">
                         <span>登出</span>

@@ -33,9 +33,7 @@
                         <i class="tableInfoIcon fa fa-bell"></i>
                         <p class="tableInfoText">没有查询到数据</p>
                     </div>
-                    <div class="bgzhe" style="position:absolute" v-show="loading">
-                        <div class='loader loader-glisteningWindow' style="position:absolute"></div>
-                    </div>
+                    <loading-comp v-show="loading"></loading-comp>
                 </div>
                 <div class="row">
                     <pagination :page=pagination.page :page-size=pagination.pageSize :total-size=pagination.totalSize></pagination>
@@ -48,6 +46,7 @@
 <script>
 import Vue from 'vue';
 import pagination from './Pagination.vue';
+import loadingComp from './Loading.vue';
 export default {
     props: {
         gridColumns: {
@@ -88,7 +87,8 @@ export default {
         return {};
     },
     components: {
-        pagination
+        pagination,
+        loadingComp
     },
     computed: {
         count: function() {
