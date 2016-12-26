@@ -16,6 +16,7 @@ import MyHeader from './components/Header.vue';
 import MyFooter from './components/Footer.vue';
 import MySidebar from './components/Sidebar.vue';
 import MySidebarAdmin from './components/SidebarAdmin.vue';
+import callout from './components/Callout.vue';
 import Loading from './components/Loading.vue';
 
 var nickName = common.getUserName();
@@ -66,6 +67,9 @@ router.map({
         component: {
             template: '<section class=\'content-header\'><h1>首页</h1></section>'
         }
+        // component: function(resolve) {
+        //     require(['./components/demo/test.vue'], resolve);
+        // }
     },
     '/login': {
         component: function(resolve) {
@@ -87,7 +91,7 @@ router.map({
                 name: 'vehicleList',
                 component: function(resolve) {
                     require.ensure([], function() {
-                        resolve(require('./pages/vehicle/vehicleList-comp.vue'));
+                        resolve(require('./pages/vehicle/vehicleList.vue'));
                     }, 'vehicle-chunk');
                 }
             },
@@ -347,7 +351,66 @@ router.map({
                 resolve(require('./pages/demo/demo.vue'));
             }, 'demo-chunk');
         }
-    }
+    },
+    // mapdemo的路由地址
+    '/map': {
+        component: function(resolve) {
+            require.ensure([], function() {
+                resolve(require('./pages/demo/mapDemo.vue'));
+            }, 'demo-chunk');
+        }
+    },
+    // mapCar的路由
+    '/mapCar': {
+        component: function(resolve) {
+            require.ensure([], function() {
+                resolve(require('./pages/demo/mapCar.vue'));
+            }, 'demo-chunk');
+        }
+    },
+    '/slider': {
+        component: function(resolve) {
+            require.ensure([], function() {
+                resolve(require('./pages/demo/sliderDemo.vue'));
+            }, 'demo-chunk');
+        }
+    },
+    // chartdemo的路由地址
+    '/chart': {
+        component: function(resolve) {
+            require.ensure([], function() {
+                resolve(require('./pages/demo/chartDemo.vue'));
+            }, 'demo-chunk');
+        }
+    },
+    '/tabs': {
+        component: function(resolve) {
+            require.ensure([], function() {
+                resolve(require('./pages/demo/tabsDemo.vue'));
+            }, 'demo-chunk');
+        }
+    },
+    '/signalSearch': {
+        component: function(resolve) {
+            require.ensure([], function() {
+                resolve(require('./pages/signal/signalSearch.vue'));
+            }, 'demo-chunk');
+        }
+    },
+    '/signalMonitor': {
+        component: function(resolve) {
+            require.ensure([], function() {
+                resolve(require('./pages/signal/signalMonitor.vue'));
+            }, 'demo-chunk');
+        }
+    },
+    '/signalOrder': {
+        component: function(resolve) {
+            require.ensure([], function() {
+                resolve(require('./pages/signal/signalOrder.vue'));
+            }, 'demo-chunk');
+        }
+    },
 });
 router.redirect({
     '*': '/index'
@@ -357,3 +420,5 @@ router.redirect({
 router.start(App, '#app');
 
 window.router = router;
+
+Vue.component('callout', callout);
